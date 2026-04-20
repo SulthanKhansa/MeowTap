@@ -1,27 +1,24 @@
 package util;
 
+import util.HardwareScanner.ScanCallback;
+
+/**
+ * Thread yang berjalan di background untuk mendengarkan RFID Reader.
+ */
 public class RFIDListenerThread extends Thread {
     
-    public RFIDListenerThread() {
-        // Ini kuncinya: setDaemon(true)
-        // Artinya thread ini cuma "pembantu". Kalo aplikasi utama di-close, thread ini bakal otomatis ikut mati
-        setDaemon(true);
+    private ScanCallback callback;
+
+    public RFIDListenerThread(ScanCallback callback) {
+        this.callback = callback;
     }
 
     @Override
     public void run() {
-        System.out.println("Background Thread: Scanner RFID udah standby nunggu tap wkwk");
+        System.out.println("RFID Listener background thread started.");
+        HardwareScanner scanner = new HardwareScanner();
         
-        while (true) {
-            try {
-                // Di sini nanti lu masukin kodingan buat ngebaca input dari USB Serial (Pertemuan 13)
-                // Sementara kita kasih jeda 3 detik aja buat simulasi
-                Thread.sleep(3000); 
-                
-            } catch (InterruptedException e) {
-                System.out.println("Background Thread dimatiin paksa.");
-                break;
-            }
-        }
+        // Memulai proses scanning dan mengirim callback ke UI nantinya
+        scanner.mulaiScanning(callback);
     }
 }
