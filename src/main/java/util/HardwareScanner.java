@@ -4,56 +4,59 @@ import com.fazecast.jSerialComm.SerialPort;
 import dao.KucingDAO;
 import model.Kucing;
 
+/**
+ * Logika komunikasi dengan modul RFID Reader.
+ */
 public class HardwareScanner {
     
-    // Fungsi ini dipanggil dari background thread yang lu bikin di Pertemuan 12
-    public void mulaiScanning() {
+    // Interface untuk mengirim event balik ke UI (MainDashboard)
+    public interface ScanCallback {
+        void onScanSuccess(Kucing kucing);
+        void onScanNotFound(String rawId);
+        void onScanError(String message);
+    }
+
+    public void mulaiScanning(ScanCallback callback) {
         // Cari port USB yang colok ke alat RFID
         SerialPort[] ports = SerialPort.getCommPorts();
         if (ports.length == 0) {
-            System.out.println("Yah, USB Reader RFID belom dicolok wkwk");
+            if (callback != null) callback.onScanError("USB Reader RFID tidak ditemukan.");
             return;
         }
 
-        // Asumsiin aja port pertama itu alat RFID kita
+        // Asumsi port pertama adalah RFID reader
         SerialPort rfidPort = ports[0];
-        if (rfidPort.openPort()) {
-            System.out.println("Berhasil nyambung ke RFID Reader di " + rfidPort.getSystemPortName());
-        } else {
-            System.out.println("Gagal buka port USB.");
+        if (!rfidPort.openPort()) {
+            if (callback != null) callback.onScanError("Gagal membuka port komunikasi.");
             return;
         }
 
-        rfidPort.setComPortParameters(9600, 8, 1, 0); // Settingan standar pabrik RFID
+        rfidPort.setComPortParameters(9600, 8, 1, 0);
         rfidPort.setComPortTimeouts(SerialPort.TIMEOUT_READ_BLOCKING, 1000, 0);
 
         try {
             while (true) {
-                byte[] readBuffer = new byte[10]; // Asumsi ID RFID panjangnya 10 karakter
+                byte[] readBuffer = new byte[10];
                 int numRead = rfidPort.readBytes(readBuffer, readBuffer.length);
                 
                 if (numRead > 0) {
-                    // Dapet nih ID mentahnya dari alat
+                    // ID RFID asli (Plain Text)
                     String idMentah = new String(readBuffer).trim();
-                    System.out.println("Bunyi BEEP, dapet ID: " + idMentah);
+                    System.out.println("RFID detected: " + idMentah);
                     
-                    // Pertemuan 9: Enkripsi ID-nya biar aman
-                    String idAman = SecurityUtils.hashSHA256(idMentah);
-                    
-                    // Pertemuan 6: Cek ke MongoDB lewat DAO
+                    // FIX BUG: Cari langsung pakai ID mentah, JANGAN di-hash (karena di DB simpan plain text)
                     KucingDAO dao = new KucingDAO();
-                    Kucing siOyen = dao.findById(idAman); // Pake ID yang udah di-hash
+                    Kucing kucing = dao.findById(idMentah);
                     
-                    if (siOyen != null) {
-                        System.out.println("Wah ada " + siOyen.getNama() + " dari kandang " + siOyen.getKandang() + " wkwk");
-                        // Di sini nanti lu panggil kodingan buat nampilin fotonya ke UI lu
+                    if (kucing != null) {
+                        if (callback != null) callback.onScanSuccess(kucing);
                     } else {
-                        System.out.println("Loh, kucing ini belom terdaftar di database kita.");
+                        if (callback != null) callback.onScanNotFound(idMentah);
                     }
                 }
             }
         } catch (Exception e) {
-            System.out.println("Scanner mati: " + e.getMessage());
+            if (callback != null) callback.onScanError(e.getMessage());
         } finally {
             rfidPort.closePort();
         }

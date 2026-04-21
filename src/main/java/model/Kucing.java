@@ -4,6 +4,8 @@ public class Kucing {
     // Enkapsulasi: Semua variabel diset private
     private String idRfid;
     private String nama;
+    private String ras;
+    private int umur; // bulan
     private String kandang;
     private String statusKesehatan;
 
@@ -12,14 +14,16 @@ public class Kucing {
     }
 
     // Constructor dengan parameter buat isi data
-    public Kucing(String idRfid, String nama, String kandang, String statusKesehatan) {
+    public Kucing(String idRfid, String nama, String ras, int umur, String kandang, String statusKesehatan) {
         this.idRfid = idRfid;
         this.nama = nama;
+        this.ras = ras;
+        this.umur = umur;
         this.kandang = kandang;
         this.statusKesehatan = statusKesehatan;
     }
 
-    // --- GETTER & SETTER (Jalur resmi buat akses variabel private) ---
+    // --- GETTER & SETTER ---
 
     public String getIdRfid() {
         return idRfid;
@@ -35,6 +39,22 @@ public class Kucing {
 
     public void setNama(String nama) {
         this.nama = nama;
+    }
+
+    public String getRas() {
+        return ras;
+    }
+
+    public void setRas(String ras) {
+        this.ras = ras;
+    }
+
+    public int getUmur() {
+        return umur;
+    }
+
+    public void setUmur(int umur) {
+        this.umur = umur;
     }
 
     public String getKandang() {
