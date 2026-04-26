@@ -1,7 +1,6 @@
 package model;
 
 public class Kucing {
-    // Enkapsulasi: Semua variabel diset private
     private String idRfid;
     private String nama;
     private String ras;
@@ -9,11 +8,9 @@ public class Kucing {
     private String kandang;
     private String statusKesehatan;
 
-    // Constructor kosong (Wajib ada buat framework/database nanti)
     public Kucing() {
     }
 
-    // Constructor dengan parameter buat isi data
     public Kucing(String idRfid, String nama, String ras, int umur, String kandang, String statusKesehatan) {
         this.idRfid = idRfid;
         this.nama = nama;
@@ -22,8 +19,6 @@ public class Kucing {
         this.kandang = kandang;
         this.statusKesehatan = statusKesehatan;
     }
-
-    // --- GETTER & SETTER ---
 
     public String getIdRfid() {
         return idRfid;

@@ -1,16 +1,16 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- */
-
 package com.mycompany.meowtap;
 
-/**
- *
- * @author user
- */
+import ui.WelcomeScreen;
+
 public class MeowTap {
 
     public static void main(String[] args) {
-        System.out.println("Hello World!");
+        // Aktifkan FlatLaf Modern Look and Feel
+        com.formdev.flatlaf.FlatIntelliJLaf.setup();
+        
+        java.awt.EventQueue.invokeLater(() -> {
+            // Mulai dari halaman WelcomeScreen
+            new WelcomeScreen().setVisible(true);
+        });
     }
 }
