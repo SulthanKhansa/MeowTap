@@ -89,4 +89,12 @@ public class KucingDAO implements DataAccessObject<Kucing> {
         }
         return null; 
     }
+
+    /**
+     * Menghitung jumlah kucing berdasarkan status kesehatan tertentu.
+     */
+    public long countByStatus(String status) {
+        org.bson.conversions.Bson filter = com.mongodb.client.model.Filters.eq("statusKesehatan", status);
+        return collection.countDocuments(filter);
+    }
 }

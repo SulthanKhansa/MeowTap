@@ -1,6 +1,7 @@
 package ui.panel;
 
 import ui.style.ThemeManager;
+import model.Admin;
 import java.awt.*;
 import javax.swing.*;
 import org.netbeans.lib.awtextra.AbsoluteConstraints;
@@ -10,7 +11,10 @@ import org.kordamp.ikonli.feather.Feather;
 
 public class PanelScanRfid extends JPanel {
 
-    public PanelScanRfid() {
+    private Admin sessionAdmin;
+
+    public PanelScanRfid(Admin admin) {
+        this.sessionAdmin = admin;
         initLayout();
         applyTheme();
     }
@@ -18,10 +22,10 @@ public class PanelScanRfid extends JPanel {
     private void initLayout() {
         setLayout(new AbsoluteLayout());
 
-        // Header Admin
+        // Header Admin - Menggunakan Nama Sultan
         JPanel pnlAdmin = new JPanel(new BorderLayout());
         pnlAdmin.setBackground(ThemeManager.NAVY);
-        JLabel lblAdmin = new JLabel("Admin", SwingConstants.CENTER);
+        JLabel lblAdmin = new JLabel(sessionAdmin.getNamaLengkap(), SwingConstants.CENTER);
         lblAdmin.setForeground(Color.WHITE);
         lblAdmin.setIcon(FontIcon.of(Feather.USER, 20, Color.WHITE));
         lblAdmin.setIconTextGap(10);
@@ -37,7 +41,6 @@ public class PanelScanRfid extends JPanel {
         JPanel pnlScanner = new JPanel(new GridBagLayout());
         pnlScanner.setBackground(new Color(18, 27, 59));
         
-        // Menggunakan Icon Vector Feather MAXIMIZE sebagai simbol scanner
         FontIcon iconScan = FontIcon.of(Feather.MAXIMIZE, 120, Color.WHITE);
         JLabel lblIcon = new JLabel(iconScan, SwingConstants.CENTER);
         

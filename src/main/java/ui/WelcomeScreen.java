@@ -46,6 +46,10 @@ public class WelcomeScreen extends JFrame {
         contentContainer.add(btnMasuk, new AbsoluteConstraints(350, 450, 300, 50));
 
         btnDaftar = new JButton("Daftar");
+        btnDaftar.addActionListener(e -> {
+            new FormDaftar().setVisible(true);
+            this.dispose();
+        });
         contentContainer.add(btnDaftar, new AbsoluteConstraints(350, 520, 300, 50));
 
         mainPanel.add(contentContainer);

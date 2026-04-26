@@ -1,6 +1,8 @@
 package ui.dialog;
 
 import ui.style.ThemeManager;
+import dao.KucingDAO;
+import model.Kucing;
 import java.awt.*;
 import javax.swing.*;
 import org.netbeans.lib.awtextra.AbsoluteConstraints;
@@ -24,23 +26,64 @@ public class DialogAnabul extends JDialog {
     }
 
     private void initLayout() {
-        setSize(500, 500);
+        setSize(500, 520);
         setLocationRelativeTo(getOwner());
         setLayout(new AbsoluteLayout());
 
         lblTitle = new JLabel(currentMode.name() + " DATA ANABUL", SwingConstants.CENTER);
         add(lblTitle, new AbsoluteConstraints(0, 20, 500, -1));
 
-        // Rows
         addLabelInput("ID RFID", 80, txtId = new JTextField());
         addLabelInput("Nama", 130, txtNama = new JTextField());
-        addLabelCombo("Ras", 180, cbRas = new JComboBox<>(new String[]{"Persia", "Anggora", "Kampung"}));
-        addLabelInput("Umur", 230, txtUmur = new JTextField());
-        addLabelCombo("Kandang", 280, cbKandang = new JComboBox<>(new String[]{"A1", "A2", "B1", "B2"}));
-        addLabelCombo("Status", 330, cbStatus = new JComboBox<>(new String[]{"Sehat", "Sakit", "Sudah Makan"}));
+        addLabelCombo("Ras", 180, cbRas = new JComboBox<>(new String[]{"Persia", "Anggora", "Kampung", "Siam"}));
+        addLabelInput("Umur (bln)", 230, txtUmur = new JTextField());
+        addLabelCombo("Kandang", 280, cbKandang = new JComboBox<>(new String[]{"A1", "A2", "B1", "B2", "C1"}));
+        addLabelCombo("Status", 330, cbStatus = new JComboBox<>(new String[]{"Sehat", "Sakit", "Sudah Makan", "Belum Makan"}));
 
         btnAction = new JButton(currentMode == Mode.TAMBAH ? "TAMBAH" : (currentMode == Mode.EDIT ? "EDIT" : "HAPUS"));
-        add(btnAction, new AbsoluteConstraints(330, 400, 120, 40));
+        btnAction.addActionListener(e -> executeAction());
+        add(btnAction, new AbsoluteConstraints(330, 410, 120, 45));
+    }
+
+    // Mengisi data lama ke form (untuk mode EDIT/HAPUS)
+    public void prepareData(Kucing k) {
+        txtId.setText(k.getIdRfid());
+        txtId.setEditable(false); // ID jangan diganti
+        txtNama.setText(k.getNama());
+        txtUmur.setText(String.valueOf(k.getUmur()));
+        cbRas.setSelectedItem(k.getRas());
+        cbKandang.setSelectedItem(k.getKandang());
+        cbStatus.setSelectedItem(k.getStatusKesehatan());
+        
+        if (currentMode == Mode.HAPUS) {
+            txtNama.setEditable(false);
+            txtUmur.setEditable(false);
+            cbRas.setEnabled(false);
+            cbKandang.setEnabled(false);
+            cbStatus.setEnabled(false);
+        }
+    }
+
+    private void executeAction() {
+        KucingDAO dao = new KucingDAO();
+        Kucing k = new Kucing(
+            txtId.getText(),
+            txtNama.getText(),
+            cbRas.getSelectedItem().toString(),
+            Integer.parseInt(txtUmur.getText()),
+            cbKandang.getSelectedItem().toString(),
+            cbStatus.getSelectedItem().toString()
+        );
+
+        if (currentMode == Mode.TAMBAH) {
+            dao.insert(k);
+        } else if (currentMode == Mode.EDIT) {
+            dao.update(k);
+        } else {
+            dao.delete(k.getIdRfid());
+        }
+        
+        this.dispose();
     }
 
     private void addLabelInput(String label, int y, JTextField field) {

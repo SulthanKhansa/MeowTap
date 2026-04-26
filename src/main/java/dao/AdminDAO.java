@@ -16,14 +16,14 @@ public class AdminDAO {
 
     public AdminDAO() {
         MongoDatabase database = DatabaseConnection.getDatabase();
-        collection = database.getCollection("admins");
+        collection = database.getCollection("user");
         
         // Auto-seed: Kalau koleksi kosong, buat akun default (admin/admin123)
         if (collection.countDocuments() == 0) {
             Admin defaultAdmin = new Admin(
-                "admin", 
-                SecurityUtils.hashSHA256("admin123"), 
-                "Administrator"
+                "tuko", 
+                SecurityUtils.hashSHA256("123"), 
+                "Tuko"
             );
             
             Document doc = new Document("username", defaultAdmin.getUsername())
@@ -56,5 +56,21 @@ public class AdminDAO {
         }
         
         return null;
+    }
+
+    /**
+     * Mendaftarkan admin baru ke database.
+     */
+    public boolean register(Admin admin) {
+        try {
+            Document doc = new Document("username", admin.getUsername())
+                    .append("password", admin.getPassword())
+                    .append("namaLengkap", admin.getNamaLengkap());
+            collection.insertOne(doc);
+            return true;
+        } catch (Exception e) {
+            System.err.println("Gagal daftar: " + e.getMessage());
+            return false;
+        }
     }
 }

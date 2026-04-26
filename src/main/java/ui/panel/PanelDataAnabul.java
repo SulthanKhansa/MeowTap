@@ -2,7 +2,10 @@ package ui.panel;
 
 import ui.style.ThemeManager;
 import ui.dialog.DialogAnabul;
+import dao.KucingDAO;
+import model.Kucing;
 import java.awt.*;
+import java.util.List;
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import org.netbeans.lib.awtextra.AbsoluteConstraints;
@@ -11,6 +14,7 @@ import org.netbeans.lib.awtextra.AbsoluteLayout;
 public class PanelDataAnabul extends JPanel {
 
     private JTable table;
+    private DefaultTableModel tableModel;
     private JScrollPane scrollPane;
     private JTextField txtSearch;
     private JButton btnTambah, btnEdit, btnHapus;
@@ -18,6 +22,7 @@ public class PanelDataAnabul extends JPanel {
     public PanelDataAnabul() {
         initLayout();
         applyTheme();
+        loadData(); // Load data saat panel dibuka
     }
 
     private void initLayout() {
@@ -46,34 +51,57 @@ public class PanelDataAnabul extends JPanel {
 
         // Inisialisasi Tabel
         String[] cols = {"ID RFID", "Nama", "Ras", "Umur", "Kandang", "Status"};
-        Object[][] data = {
-            {"1", "Riski", "Anggora", "2 thn", "B2", "Sudah Makan"},
-            {"2", "Meow", "Persia", "1 thn", "A1", "Belum Makan"}
-        };
-        
-        table = new JTable(new DefaultTableModel(data, cols));
+        tableModel = new DefaultTableModel(cols, 0);
+        table = new JTable(tableModel);
         scrollPane = new JScrollPane(table);
         add(scrollPane, new AbsoluteConstraints(20, 140, 950, 500));
     }
 
+    public void loadData() {
+        tableModel.setRowCount(0); // Kosongkan tabel
+        KucingDAO dao = new KucingDAO();
+        List<Kucing> list = dao.findAll();
+        
+        for (Kucing k : list) {
+            tableModel.addRow(new Object[]{
+                k.getIdRfid(),
+                k.getNama(),
+                k.getRas(),
+                k.getUmur() + " bln",
+                k.getKandang(),
+                k.getStatusKesehatan()
+            });
+        }
+    }
+
     private void showDialog(DialogAnabul.Mode mode) {
         Frame parent = (Frame) SwingUtilities.getWindowAncestor(this);
-        new DialogAnabul(parent, mode).setVisible(true);
+        DialogAnabul dialog = new DialogAnabul(parent, mode);
+        
+        // Jika mode EDIT, isi data terpilih
+        if (mode != DialogAnabul.Mode.TAMBAH) {
+            int row = table.getSelectedRow();
+            if (row == -1) {
+                JOptionPane.showMessageDialog(this, "Pilih data di tabel terlebih dahulu!");
+                return;
+            }
+            String id = table.getValueAt(row, 0).toString();
+            Kucing k = new KucingDAO().findById(id);
+            dialog.prepareData(k);
+        }
+        
+        dialog.setVisible(true);
+        loadData(); // Refresh tabel setelah dialog ditutup
     }
 
     private void applyTheme() {
         setBackground(ThemeManager.LAVENDER);
-        
         btnTambah.setBackground(ThemeManager.STAT_GREEN);
         btnTambah.setForeground(Color.WHITE);
-        
         btnEdit.setBackground(ThemeManager.STAT_YELLOW);
         btnEdit.setForeground(Color.BLACK);
-        
         btnHapus.setBackground(ThemeManager.STAT_RED);
         btnHapus.setForeground(Color.WHITE);
-        
-        // Styling Buttons
         styleBtn(btnTambah);
         styleBtn(btnEdit);
         styleBtn(btnHapus);

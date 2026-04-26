@@ -1,6 +1,8 @@
 package ui.panel;
 
 import ui.style.ThemeManager;
+import model.Admin;
+import dao.KucingDAO;
 import java.awt.*;
 import javax.swing.*;
 import org.netbeans.lib.awtextra.AbsoluteConstraints;
@@ -10,7 +12,12 @@ import org.kordamp.ikonli.feather.Feather;
 
 public class PanelBeranda extends JPanel {
 
-    public PanelBeranda() {
+    private Admin sessionAdmin;
+    private KucingDAO dao;
+
+    public PanelBeranda(Admin admin) {
+        this.sessionAdmin = admin;
+        this.dao = new KucingDAO();
         initLayout();
         applyTheme();
     }
@@ -18,26 +25,31 @@ public class PanelBeranda extends JPanel {
     private void initLayout() {
         setLayout(new AbsoluteLayout());
 
-        // Header Admin
+        // Header Admin - Dinamis dari DB
         JPanel pnlAdmin = new JPanel(new BorderLayout());
         pnlAdmin.setBackground(ThemeManager.NAVY);
-        
-        JLabel lblAdmin = new JLabel("Admin", SwingConstants.CENTER);
+        JLabel lblAdmin = new JLabel(sessionAdmin.getNamaLengkap(), SwingConstants.CENTER);
         lblAdmin.setForeground(Color.WHITE);
         lblAdmin.setIcon(FontIcon.of(Feather.USER, 20, Color.WHITE));
         lblAdmin.setIconTextGap(10);
-        
         pnlAdmin.add(lblAdmin, BorderLayout.CENTER);
         add(pnlAdmin, new AbsoluteConstraints(680, 20, 240, 60));
 
-        // 1. Barisan Statistik
+        // 1. Barisan Statistik - DATA ASLI DARI MONGODB
         JPanel pnlStats = new JPanel(new AbsoluteLayout());
         pnlStats.setBackground(ThemeManager.DARK_BLUE);
         pnlStats.add(new JLabel("Ringkasan Hari Ini"), new AbsoluteConstraints(20, 10, -1, -1));
-        pnlStats.add(createStatBox("Sudah Makan", "42", ThemeManager.STAT_GREEN), new AbsoluteConstraints(20, 40, 150, 80));
-        pnlStats.add(createStatBox("Belum Makan", "23", ThemeManager.STAT_YELLOW), new AbsoluteConstraints(185, 40, 150, 80));
-        pnlStats.add(createStatBox("Sakit", "4", ThemeManager.STAT_PINK), new AbsoluteConstraints(350, 40, 150, 80));
-        pnlStats.add(createStatBox("Tewas", "2", ThemeManager.STAT_RED), new AbsoluteConstraints(515, 40, 150, 80));
+        
+        // Ambil hitungan asli dari DB
+        String sMakan = String.valueOf(dao.countByStatus("Sudah Makan"));
+        String bMakan = String.valueOf(dao.countByStatus("Belum Makan"));
+        String sakit = String.valueOf(dao.countByStatus("Sakit"));
+        String tewas = String.valueOf(dao.countByStatus("Meninggal")); // Asumsi status di DB
+
+        pnlStats.add(createStatBox("Sudah Makan", sMakan, ThemeManager.STAT_GREEN), new AbsoluteConstraints(20, 40, 150, 80));
+        pnlStats.add(createStatBox("Belum Makan", bMakan, ThemeManager.STAT_YELLOW), new AbsoluteConstraints(185, 40, 150, 80));
+        pnlStats.add(createStatBox("Sakit", sakit, ThemeManager.STAT_PINK), new AbsoluteConstraints(350, 40, 150, 80));
+        pnlStats.add(createStatBox("Meninggal", tewas, ThemeManager.STAT_RED), new AbsoluteConstraints(515, 40, 150, 80));
         add(pnlStats, new AbsoluteConstraints(30, 90, 680, 140));
 
         // 2. Area Scanner

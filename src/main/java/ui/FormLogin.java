@@ -1,6 +1,8 @@
 package ui;
 
 import ui.style.ThemeManager;
+import dao.AdminDAO;
+import model.Admin;
 import java.awt.*;
 import javax.swing.*;
 import org.netbeans.lib.awtextra.AbsoluteConstraints;
@@ -43,16 +45,39 @@ public class FormLogin extends JFrame {
         loginContainer.add(txtPassword, new AbsoluteConstraints(350, 300, 310, 45));
 
         btnMasuk = new JButton("Masuk");
-        btnMasuk.addActionListener(e -> {
-            new MainDashboard().setVisible(true);
+        btnMasuk.addActionListener(e -> prosesLogin());
+        loginContainer.add(btnMasuk, new AbsoluteConstraints(350, 380, 310, 50));
+
+        JButton btnKeDaftar = new JButton("Belum punya akun? Daftar");
+        btnKeDaftar.setForeground(Color.WHITE);
+        btnKeDaftar.setContentAreaFilled(false);
+        btnKeDaftar.setBorderPainted(false);
+        btnKeDaftar.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        btnKeDaftar.addActionListener(e -> {
+            new FormDaftar().setVisible(true);
             this.dispose();
         });
-        loginContainer.add(btnMasuk, new AbsoluteConstraints(350, 380, 310, 50));
+        loginContainer.add(btnKeDaftar, new AbsoluteConstraints(350, 440, 310, -1));
 
         mainPanel.add(loginContainer);
     }
 
-    // Bagian pengaturan tema dan styling komponen
+    private void prosesLogin() {
+        String user = txtUsername.getText();
+        String pass = new String(txtPassword.getPassword());
+
+        AdminDAO dao = new AdminDAO();
+        Admin admin = dao.checkLogin(user, pass);
+
+        if (admin != null) {
+            // Berhasil Login: Buka Dashboard dengan data Admin asli
+            new MainDashboard(admin).setVisible(true);
+            this.dispose();
+        } else {
+            JOptionPane.showMessageDialog(this, "Username atau Password salah!", "Login Gagal", JOptionPane.ERROR_MESSAGE);
+        }
+    }
+
     private void applyTheme() {
         mainPanel.setBackground(ThemeManager.LAVENDER);
         loginContainer.setOpaque(false);
@@ -63,16 +88,14 @@ public class FormLogin extends JFrame {
         lblAppName.setFont(ThemeManager.FONT_LOGO);
         lblAppName.setForeground(ThemeManager.WHITE);
 
-        // Styling input fields
         txtUsername.setBackground(inputBg);
         txtUsername.setBorder(BorderFactory.createEmptyBorder(5, 15, 5, 5));
-        txtUsername.putClientProperty("JTextField.placeholderText", "Email / No Telepon");
+        txtUsername.putClientProperty("JTextField.placeholderText", "Username");
         
         txtPassword.setBackground(inputBg);
         txtPassword.setBorder(BorderFactory.createEmptyBorder(5, 15, 5, 5));
-        txtPassword.putClientProperty("JTextField.placeholderText", "Kata Sandi");
+        txtPassword.putClientProperty("JTextField.placeholderText", "Password");
 
-        // Styling tombol masuk
         btnMasuk.setBackground(ThemeManager.NAVY);
         btnMasuk.setForeground(ThemeManager.WHITE);
         btnMasuk.setFont(ThemeManager.FONT_BOLD_14);

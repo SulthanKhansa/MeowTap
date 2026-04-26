@@ -1,6 +1,7 @@
 package ui;
 
 import ui.style.ThemeManager;
+import model.Admin;
 import java.awt.*;
 import javax.swing.*;
 import org.netbeans.lib.awtextra.AbsoluteConstraints;
@@ -14,15 +15,17 @@ public class MainDashboard extends JFrame {
     private CardLayout cardLayout;
     private JButton btnNavBeranda, btnNavScan, btnNavData, btnNavAI, btnLogout;
     private JLabel lblLogo;
+    private Admin sessionAdmin;
 
-    public MainDashboard() {
+    public MainDashboard(Admin admin) {
+        this.sessionAdmin = admin;
         initCustomComponents();
         applyTheme();
     }
 
     private void initCustomComponents() {
         setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
-        setTitle("MeowTap Dashboard");
+        setTitle("MeowTap Dashboard - " + sessionAdmin.getNamaLengkap());
         setExtendedState(JFrame.MAXIMIZED_BOTH);
 
         getContentPane().setLayout(new BorderLayout());
@@ -51,8 +54,10 @@ public class MainDashboard extends JFrame {
 
         cardLayout = new CardLayout();
         panelKonten = new JPanel(cardLayout);
-        panelKonten.add(new ui.panel.PanelBeranda(), "cardBeranda");
-        panelKonten.add(new ui.panel.PanelScanRfid(), "cardScan");
+        
+        // Sekarang semua Panel menerima data Admin agar nama profil sinkron
+        panelKonten.add(new ui.panel.PanelBeranda(sessionAdmin), "cardBeranda");
+        panelKonten.add(new ui.panel.PanelScanRfid(sessionAdmin), "cardScan");
         panelKonten.add(new ui.panel.PanelDataAnabul(), "cardData");
         panelKonten.add(new ui.panel.PanelAiClinic(), "cardAI");
 
