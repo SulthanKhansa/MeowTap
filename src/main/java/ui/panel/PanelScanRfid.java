@@ -11,7 +11,9 @@ import org.kordamp.ikonli.feather.Feather;
 
 public class PanelScanRfid extends JPanel {
 
-    private Admin sessionAdmin;
+    private final Admin sessionAdmin;
+    private JPanel pnlAdmin;
+    private JLabel lblAdmin, lblTitle, lblStatus, lblSub;
 
     public PanelScanRfid(Admin admin) {
         this.sessionAdmin = admin;
@@ -19,38 +21,35 @@ public class PanelScanRfid extends JPanel {
         applyTheme();
     }
 
+    // Logic & Actions
+
+    public void startScanning() {
+        // Implementasi integrasi hardware
+    }
+
+    // UI & Theme
+
     private void initLayout() {
         setLayout(new AbsoluteLayout());
 
-        // Header Admin - Menggunakan Nama Sultan
-        JPanel pnlAdmin = new JPanel(new BorderLayout());
-        pnlAdmin.setBackground(ThemeManager.NAVY);
-        JLabel lblAdmin = new JLabel(sessionAdmin.getNamaLengkap(), SwingConstants.CENTER);
-        lblAdmin.setForeground(Color.WHITE);
+        pnlAdmin = new JPanel(new BorderLayout());
+        lblAdmin = new JLabel(sessionAdmin.getNamaLengkap(), SwingConstants.CENTER);
         lblAdmin.setIcon(FontIcon.of(Feather.USER, 20, Color.WHITE));
         lblAdmin.setIconTextGap(10);
         pnlAdmin.add(lblAdmin, BorderLayout.CENTER);
         add(pnlAdmin, new AbsoluteConstraints(680, 20, 240, 60));
 
-        JLabel lblTitle = new JLabel("Sistem Pemindaian RFID", SwingConstants.CENTER);
-        lblTitle.setFont(ThemeManager.FONT_WELCOME);
-        lblTitle.setForeground(ThemeManager.WHITE);
+        lblTitle = new JLabel("Sistem Pemindaian RFID", SwingConstants.CENTER);
         add(lblTitle, new AbsoluteConstraints(0, 50, 1000, -1));
 
-        // Area Box Scanner Tengah
         JPanel pnlScanner = new JPanel(new GridBagLayout());
         pnlScanner.setBackground(new Color(18, 27, 59));
         
         FontIcon iconScan = FontIcon.of(Feather.MAXIMIZE, 120, Color.WHITE);
         JLabel lblIcon = new JLabel(iconScan, SwingConstants.CENTER);
         
-        JLabel lblStatus = new JLabel("Scanner siap", SwingConstants.CENTER);
-        lblStatus.setFont(ThemeManager.FONT_BOLD_16);
-        lblStatus.setForeground(Color.WHITE);
-        
-        JLabel lblSub = new JLabel("Silakan tempelkan kalung RFID anabul ke Reader", SwingConstants.CENTER);
-        lblSub.setFont(ThemeManager.FONT_PLAIN_12);
-        lblSub.setForeground(Color.LIGHT_GRAY);
+        lblStatus = new JLabel("Scanner siap", SwingConstants.CENTER);
+        lblSub = new JLabel("Silakan tempelkan kalung RFID anabul ke Reader", SwingConstants.CENTER);
 
         JPanel infoContainer = new JPanel();
         infoContainer.setLayout(new BoxLayout(infoContainer, BoxLayout.Y_AXIS));
@@ -72,5 +71,15 @@ public class PanelScanRfid extends JPanel {
 
     private void applyTheme() {
         setBackground(ThemeManager.LAVENDER);
+        pnlAdmin.setBackground(ThemeManager.NAVY);
+        
+        lblAdmin.setForeground(Color.WHITE);
+        lblTitle.setFont(ThemeManager.FONT_WELCOME);
+        lblTitle.setForeground(ThemeManager.WHITE);
+        
+        lblStatus.setFont(ThemeManager.FONT_BOLD_16);
+        lblStatus.setForeground(Color.WHITE);
+        lblSub.setFont(ThemeManager.FONT_PLAIN_12);
+        lblSub.setForeground(Color.LIGHT_GRAY);
     }
 }

@@ -2,6 +2,7 @@ package ui;
 
 import ui.style.ThemeManager;
 import model.Admin;
+import ui.panel.*;
 import java.awt.*;
 import javax.swing.*;
 import org.netbeans.lib.awtextra.AbsoluteConstraints;
@@ -15,13 +16,30 @@ public class MainDashboard extends JFrame {
     private CardLayout cardLayout;
     private JButton btnNavBeranda, btnNavScan, btnNavData, btnNavAI, btnLogout;
     private JLabel lblLogo;
-    private Admin sessionAdmin;
+    private final Admin sessionAdmin;
+    private PanelBeranda pnlBeranda;
 
     public MainDashboard(Admin admin) {
         this.sessionAdmin = admin;
         initCustomComponents();
         applyTheme();
     }
+
+    // Login & Actions
+
+    private void switchPanel(String cardName) {
+        cardLayout.show(panelKonten, cardName);
+        if (cardName.equals("cardBeranda")) {
+            pnlBeranda.refreshStats();
+        }
+    }
+
+    private void prosesLogout() {
+        new WelcomeScreen().setVisible(true);
+        this.dispose();
+    }
+
+    // UI & Theme
 
     private void initCustomComponents() {
         setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
@@ -44,10 +62,7 @@ public class MainDashboard extends JFrame {
         btnLogout = new JButton("LOGOUT");
         btnLogout.setIcon(FontIcon.of(Feather.LOG_OUT, 16, Color.WHITE));
         btnLogout.setIconTextGap(10);
-        btnLogout.addActionListener(e -> {
-            new WelcomeScreen().setVisible(true);
-            this.dispose();
-        });
+        btnLogout.addActionListener(e -> prosesLogout());
         panelSidebar.add(btnLogout, new AbsoluteConstraints(20, 650, 220, 45));
 
         getContentPane().add(panelSidebar, BorderLayout.WEST);
@@ -55,11 +70,11 @@ public class MainDashboard extends JFrame {
         cardLayout = new CardLayout();
         panelKonten = new JPanel(cardLayout);
         
-        // Sekarang semua Panel menerima data Admin agar nama profil sinkron
-        panelKonten.add(new ui.panel.PanelBeranda(sessionAdmin), "cardBeranda");
-        panelKonten.add(new ui.panel.PanelScanRfid(sessionAdmin), "cardScan");
-        panelKonten.add(new ui.panel.PanelDataAnabul(), "cardData");
-        panelKonten.add(new ui.panel.PanelAiClinic(), "cardAI");
+        pnlBeranda = new PanelBeranda(sessionAdmin);
+        panelKonten.add(pnlBeranda, "cardBeranda");
+        panelKonten.add(new PanelScanRfid(sessionAdmin), "cardScan");
+        panelKonten.add(new PanelDataAnabul(), "cardData");
+        panelKonten.add(new PanelAiClinic(), "cardAI");
 
         getContentPane().add(panelKonten, BorderLayout.CENTER);
     }
@@ -70,8 +85,7 @@ public class MainDashboard extends JFrame {
         btn.setIconTextGap(15);
         btn.setHorizontalAlignment(SwingConstants.LEFT);
         btn.setMargin(new Insets(0, 20, 0, 0));
-        
-        btn.addActionListener(e -> cardLayout.show(panelKonten, cardName));
+        btn.addActionListener(e -> switchPanel(cardName));
         panelSidebar.add(btn, new AbsoluteConstraints(20, y, 220, 45));
         return btn;
     }

@@ -12,7 +12,7 @@ public class FormLogin extends JFrame {
 
     private JTextField txtUsername;
     private JPasswordField txtPassword;
-    private JButton btnMasuk;
+    private JButton btnMasuk, btnKeDaftar;
     private JPanel mainPanel, loginContainer;
     private JLabel lblTitle, lblAppName;
 
@@ -20,6 +20,25 @@ public class FormLogin extends JFrame {
         initCustomComponents();
         applyTheme();
     }
+
+    // Logic & Actions
+
+    private void prosesLogin() {
+        String user = txtUsername.getText();
+        String pass = new String(txtPassword.getPassword());
+
+        AdminDAO dao = new AdminDAO();
+        Admin admin = dao.checkLogin(user, pass);
+
+        if (admin != null) {
+            new MainDashboard(admin).setVisible(true);
+            this.dispose();
+        } else {
+            JOptionPane.showMessageDialog(this, "Username atau Password salah!", "Login Gagal", JOptionPane.ERROR_MESSAGE);
+        }
+    }
+
+    // UI & Theme
 
     private void initCustomComponents() {
         setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
@@ -48,11 +67,7 @@ public class FormLogin extends JFrame {
         btnMasuk.addActionListener(e -> prosesLogin());
         loginContainer.add(btnMasuk, new AbsoluteConstraints(350, 380, 310, 50));
 
-        JButton btnKeDaftar = new JButton("Belum punya akun? Daftar");
-        btnKeDaftar.setForeground(Color.WHITE);
-        btnKeDaftar.setContentAreaFilled(false);
-        btnKeDaftar.setBorderPainted(false);
-        btnKeDaftar.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        btnKeDaftar = new JButton("Belum punya akun? Daftar");
         btnKeDaftar.addActionListener(e -> {
             new FormDaftar().setVisible(true);
             this.dispose();
@@ -60,22 +75,6 @@ public class FormLogin extends JFrame {
         loginContainer.add(btnKeDaftar, new AbsoluteConstraints(350, 440, 310, -1));
 
         mainPanel.add(loginContainer);
-    }
-
-    private void prosesLogin() {
-        String user = txtUsername.getText();
-        String pass = new String(txtPassword.getPassword());
-
-        AdminDAO dao = new AdminDAO();
-        Admin admin = dao.checkLogin(user, pass);
-
-        if (admin != null) {
-            // Berhasil Login: Buka Dashboard dengan data Admin asli
-            new MainDashboard(admin).setVisible(true);
-            this.dispose();
-        } else {
-            JOptionPane.showMessageDialog(this, "Username atau Password salah!", "Login Gagal", JOptionPane.ERROR_MESSAGE);
-        }
     }
 
     private void applyTheme() {
@@ -102,5 +101,10 @@ public class FormLogin extends JFrame {
         btnMasuk.setBorderPainted(false);
         btnMasuk.setFocusPainted(false);
         btnMasuk.setCursor(new Cursor(Cursor.HAND_CURSOR));
+
+        btnKeDaftar.setForeground(Color.WHITE);
+        btnKeDaftar.setContentAreaFilled(false);
+        btnKeDaftar.setBorderPainted(false);
+        btnKeDaftar.setCursor(new Cursor(Cursor.HAND_CURSOR));
     }
 }

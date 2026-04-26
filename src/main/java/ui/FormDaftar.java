@@ -22,46 +22,7 @@ public class FormDaftar extends JFrame {
         applyTheme();
     }
 
-    private void initCustomComponents() {
-        setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
-        setTitle("MeowTap - Daftar Akun");
-        setExtendedState(JFrame.MAXIMIZED_BOTH);
-
-        mainPanel = new JPanel(new GridBagLayout());
-        setContentPane(mainPanel);
-
-        container = new JPanel(new AbsoluteLayout());
-        container.setPreferredSize(new Dimension(1000, 700));
-
-        lblTitle = new JLabel("Welcome to the", SwingConstants.CENTER);
-        container.add(lblTitle, new AbsoluteConstraints(0, 80, 1000, -1));
-
-        lblAppName = new JLabel("MeowTap", SwingConstants.CENTER);
-        container.add(lblAppName, new AbsoluteConstraints(0, 120, 1000, -1));
-
-        // Input Fields
-        txtNama = new JTextField();
-        container.add(txtNama, new AbsoluteConstraints(350, 200, 310, 45));
-
-        txtUsername = new JTextField();
-        container.add(txtUsername, new AbsoluteConstraints(350, 260, 310, 45));
-
-        txtPassword = new JPasswordField();
-        container.add(txtPassword, new AbsoluteConstraints(350, 320, 310, 45));
-
-        btnDaftar = new JButton("Daftar");
-        btnDaftar.addActionListener(e -> prosesDaftar());
-        container.add(btnDaftar, new AbsoluteConstraints(350, 400, 310, 50));
-
-        btnBack = new JButton("Sudah punya akun? Login");
-        btnBack.addActionListener(e -> {
-            new FormLogin().setVisible(true);
-            this.dispose();
-        });
-        container.add(btnBack, new AbsoluteConstraints(350, 460, 310, -1));
-
-        mainPanel.add(container);
-    }
+    // Logic & Actions
 
     private void prosesDaftar() {
         String nama = txtNama.getText();
@@ -85,10 +46,51 @@ public class FormDaftar extends JFrame {
         }
     }
 
+    // UI & Theme
+
+    private void initCustomComponents() {
+        setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
+        setTitle("MeowTap - Daftar Akun");
+        setExtendedState(JFrame.MAXIMIZED_BOTH);
+
+        mainPanel = new JPanel(new GridBagLayout());
+        setContentPane(mainPanel);
+
+        container = new JPanel(new AbsoluteLayout());
+        container.setPreferredSize(new Dimension(1000, 700));
+
+        lblTitle = new JLabel("Welcome to the", SwingConstants.CENTER);
+        container.add(lblTitle, new AbsoluteConstraints(0, 80, 1000, -1));
+
+        lblAppName = new JLabel("MeowTap", SwingConstants.CENTER);
+        container.add(lblAppName, new AbsoluteConstraints(0, 120, 1000, -1));
+
+        txtNama = new JTextField();
+        container.add(txtNama, new AbsoluteConstraints(350, 200, 310, 45));
+
+        txtUsername = new JTextField();
+        container.add(txtUsername, new AbsoluteConstraints(350, 260, 310, 45));
+
+        txtPassword = new JPasswordField();
+        container.add(txtPassword, new AbsoluteConstraints(350, 320, 310, 45));
+
+        btnDaftar = new JButton("Daftar");
+        btnDaftar.addActionListener(e -> prosesDaftar());
+        container.add(btnDaftar, new AbsoluteConstraints(350, 400, 310, 50));
+
+        btnBack = new JButton("Sudah punya akun? Login");
+        btnBack.addActionListener(e -> {
+            new FormLogin().setVisible(true);
+            this.dispose();
+        });
+        container.add(btnBack, new AbsoluteConstraints(350, 460, 310, -1));
+
+        mainPanel.add(container);
+    }
+
     private void applyTheme() {
         mainPanel.setBackground(ThemeManager.LAVENDER);
         container.setOpaque(false);
-        Color inputBg = new Color(217, 217, 217);
 
         lblTitle.setFont(ThemeManager.FONT_WELCOME);
         lblTitle.setForeground(ThemeManager.WHITE);

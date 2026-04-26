@@ -16,7 +16,7 @@ public class DialogAnabul extends JDialog {
     private JComboBox<String> cbRas, cbKandang, cbStatus;
     private JButton btnAction;
     private JLabel lblTitle;
-    private Mode currentMode;
+    private final Mode currentMode;
 
     public DialogAnabul(Frame parent, Mode mode) {
         super(parent, true);
@@ -25,30 +25,11 @@ public class DialogAnabul extends JDialog {
         applyTheme();
     }
 
-    private void initLayout() {
-        setSize(500, 520);
-        setLocationRelativeTo(getOwner());
-        setLayout(new AbsoluteLayout());
+    // Logic & Actions
 
-        lblTitle = new JLabel(currentMode.name() + " DATA ANABUL", SwingConstants.CENTER);
-        add(lblTitle, new AbsoluteConstraints(0, 20, 500, -1));
-
-        addLabelInput("ID RFID", 80, txtId = new JTextField());
-        addLabelInput("Nama", 130, txtNama = new JTextField());
-        addLabelCombo("Ras", 180, cbRas = new JComboBox<>(new String[]{"Persia", "Anggora", "Kampung", "Siam"}));
-        addLabelInput("Umur (bln)", 230, txtUmur = new JTextField());
-        addLabelCombo("Kandang", 280, cbKandang = new JComboBox<>(new String[]{"A1", "A2", "B1", "B2", "C1"}));
-        addLabelCombo("Status", 330, cbStatus = new JComboBox<>(new String[]{"Sehat", "Sakit", "Sudah Makan", "Belum Makan"}));
-
-        btnAction = new JButton(currentMode == Mode.TAMBAH ? "TAMBAH" : (currentMode == Mode.EDIT ? "EDIT" : "HAPUS"));
-        btnAction.addActionListener(e -> executeAction());
-        add(btnAction, new AbsoluteConstraints(330, 410, 120, 45));
-    }
-
-    // Mengisi data lama ke form (untuk mode EDIT/HAPUS)
     public void prepareData(Kucing k) {
         txtId.setText(k.getIdRfid());
-        txtId.setEditable(false); // ID jangan diganti
+        txtId.setEditable(false);
         txtNama.setText(k.getNama());
         txtUmur.setText(String.valueOf(k.getUmur()));
         cbRas.setSelectedItem(k.getRas());
@@ -86,6 +67,28 @@ public class DialogAnabul extends JDialog {
         this.dispose();
     }
 
+    // UI & Theme
+
+    private void initLayout() {
+        setSize(500, 520);
+        setLocationRelativeTo(getOwner());
+        setLayout(new AbsoluteLayout());
+
+        lblTitle = new JLabel(currentMode.name() + " DATA ANABUL", SwingConstants.CENTER);
+        add(lblTitle, new AbsoluteConstraints(0, 20, 500, -1));
+
+        addLabelInput("ID RFID", 80, txtId = new JTextField());
+        addLabelInput("Nama", 130, txtNama = new JTextField());
+        addLabelCombo("Ras", 180, cbRas = new JComboBox<>(new String[]{"Persia", "Anggora", "Kampung", "Siam"}));
+        addLabelInput("Umur (bln)", 230, txtUmur = new JTextField());
+        addLabelCombo("Kandang", 280, cbKandang = new JComboBox<>(new String[]{"A1", "A2", "B1", "B2", "C1"}));
+        addLabelCombo("Status", 330, cbStatus = new JComboBox<>(new String[]{"Sudah Makan", "Belum Makan", "Sakit", "Meninggal", "Sehat"}));
+
+        btnAction = new JButton(currentMode == Mode.TAMBAH ? "TAMBAH" : (currentMode == Mode.EDIT ? "EDIT" : "HAPUS"));
+        btnAction.addActionListener(e -> executeAction());
+        add(btnAction, new AbsoluteConstraints(330, 410, 120, 45));
+    }
+
     private void addLabelInput(String label, int y, JTextField field) {
         JLabel l = new JLabel(label + "  :");
         l.setForeground(Color.WHITE);
@@ -116,5 +119,8 @@ public class DialogAnabul extends JDialog {
             btnAction.setBackground(ThemeManager.STAT_RED);
             btnAction.setForeground(Color.WHITE);
         }
+        
+        btnAction.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        btnAction.setBorderPainted(false);
     }
 }

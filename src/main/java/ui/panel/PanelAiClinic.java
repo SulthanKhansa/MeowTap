@@ -8,54 +8,73 @@ import org.netbeans.lib.awtextra.AbsoluteLayout;
 
 public class PanelAiClinic extends JPanel {
 
-    private JTextArea chatArea;
+    private JTextArea txtChat;
     private JTextField txtInput;
-    private JButton btnKirim;
+    private JButton btnSend;
+    private JScrollPane scrollChat;
+    private JLabel lblTitle;
 
     public PanelAiClinic() {
         initLayout();
         applyTheme();
     }
 
+    // Logic & Actions
+
+    private void sendMessage() {
+        String msg = txtInput.getText();
+        if (!msg.isEmpty()) {
+            txtChat.append("User: " + msg + "\n");
+            txtInput.setText("");
+            txtChat.append("AI: Sedang memproses pertanyaan Anda...\n\n");
+        }
+    }
+
+    // UI & Theme
+
     private void initLayout() {
         setLayout(new AbsoluteLayout());
 
-        JLabel lblTitle = new JLabel("AI Clinic");
-        lblTitle.setFont(ThemeManager.FONT_WELCOME);
-        lblTitle.setForeground(ThemeManager.WHITE);
-        add(lblTitle, new AbsoluteConstraints(20, 20, -1, -1));
+        lblTitle = new JLabel("MeowTap AI Clinic");
+        add(lblTitle, new AbsoluteConstraints(30, 30, -1, -1));
 
-        JLabel lblSub = new JLabel("Konsultasi gejala awal anabul menggunakan Gemini AI");
-        lblSub.setForeground(ThemeManager.WHITE);
-        add(lblSub, new AbsoluteConstraints(20, 55, -1, -1));
-
-        // Chat Bubble Area
-        chatArea = new JTextArea();
-        chatArea.setEditable(false);
-        chatArea.setText("System AI:\nHalo, Admin Tuko. Saya adalah asisten medis virtual MeowTap...");
-        chatArea.setLineWrap(true);
-        chatArea.setWrapStyleWord(true);
+        txtChat = new JTextArea();
+        txtChat.setEditable(false);
+        txtChat.setLineWrap(true);
+        txtChat.setWrapStyleWord(true);
         
-        JScrollPane scroll = new JScrollPane(chatArea);
-        add(scroll, new AbsoluteConstraints(20, 100, 950, 450));
+        scrollChat = new JScrollPane(txtChat);
+        add(scrollChat, new AbsoluteConstraints(30, 80, 940, 480));
 
-        // Input Area Row
         txtInput = new JTextField();
-        txtInput.putClientProperty("JTextField.placeholderText", "Ketik gejala atau pertanyaan di sini...");
-        add(txtInput, new AbsoluteConstraints(20, 570, 800, 45));
+        txtInput.addActionListener(e -> sendMessage());
+        add(txtInput, new AbsoluteConstraints(30, 580, 800, 50));
 
-        btnKirim = new JButton("Kirim");
-        add(btnKirim, new AbsoluteConstraints(840, 570, 130, 45));
+        btnSend = new JButton("Kirim");
+        btnSend.addActionListener(e -> sendMessage());
+        add(btnSend, new AbsoluteConstraints(850, 580, 120, 50));
     }
 
     private void applyTheme() {
         setBackground(ThemeManager.LAVENDER);
         
-        chatArea.setBackground(new Color(230, 230, 230));
-        chatArea.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+        lblTitle.setFont(ThemeManager.FONT_WELCOME);
+        lblTitle.setForeground(ThemeManager.WHITE);
+
+        txtChat.setBackground(ThemeManager.DARK_BLUE);
+        txtChat.setForeground(Color.WHITE);
+        txtChat.setFont(ThemeManager.FONT_PLAIN_12);
+        txtChat.setMargin(new Insets(15, 15, 15, 15));
         
-        btnKirim.setBackground(new Color(200, 27, 121)); // Pink AI Figma
-        btnKirim.setForeground(Color.WHITE);
-        btnKirim.setFont(ThemeManager.FONT_BOLD_14);
+        scrollChat.setBorder(null);
+
+        txtInput.setBackground(new Color(217, 217, 217));
+        txtInput.setBorder(BorderFactory.createEmptyBorder(5, 15, 5, 15));
+        
+        btnSend.setBackground(ThemeManager.NAVY);
+        btnSend.setForeground(Color.WHITE);
+        btnSend.setFont(ThemeManager.FONT_BOLD_14);
+        btnSend.setBorderPainted(false);
+        btnSend.setCursor(new Cursor(Cursor.HAND_CURSOR));
     }
 }
