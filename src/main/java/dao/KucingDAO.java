@@ -9,9 +9,8 @@ import model.Kucing;
 import org.bson.Document;
 import util.DatabaseConnection;
 
-/**
- * DAO untuk mengelola data Kucing di MongoDB.
- */
+// DAO untuk mengelola data Kucing di MongoDB.
+ 
 public class KucingDAO implements DataAccessObject<Kucing> {
 
     private MongoCollection<Document> collection;
@@ -28,7 +27,8 @@ public class KucingDAO implements DataAccessObject<Kucing> {
                 .append("ras", data.getRas())
                 .append("umur", data.getUmur())
                 .append("kandang", data.getKandang())
-                .append("statusKesehatan", data.getStatusKesehatan());
+                .append("statusMakan", data.getStatusMakan())
+                .append("kondisiKesehatan", data.getKondisiKesehatan());
         
         collection.insertOne(doc);
         System.out.println("Data " + data.getNama() + " berhasil ditambahkan.");
@@ -46,7 +46,8 @@ public class KucingDAO implements DataAccessObject<Kucing> {
                         doc.getString("ras"),
                         doc.getInteger("umur", 0),
                         doc.getString("kandang"),
-                        doc.getString("statusKesehatan")
+                        doc.getString("statusMakan"),
+                        doc.getString("kondisiKesehatan")
                 );
                 listKucing.add(k);
             }
@@ -62,7 +63,8 @@ public class KucingDAO implements DataAccessObject<Kucing> {
             com.mongodb.client.model.Updates.set("ras", data.getRas()),
             com.mongodb.client.model.Updates.set("umur", data.getUmur()),
             com.mongodb.client.model.Updates.set("kandang", data.getKandang()),
-            com.mongodb.client.model.Updates.set("statusKesehatan", data.getStatusKesehatan())
+            com.mongodb.client.model.Updates.set("statusMakan", data.getStatusMakan()),
+            com.mongodb.client.model.Updates.set("kondisiKesehatan", data.getKondisiKesehatan())
         );
         collection.updateOne(filter, updateOperation);
     }
@@ -84,17 +86,22 @@ public class KucingDAO implements DataAccessObject<Kucing> {
                 doc.getString("ras"),
                 doc.getInteger("umur", 0),
                 doc.getString("kandang"),
-                doc.getString("statusKesehatan")
+                doc.getString("statusMakan"),
+                doc.getString("kondisiKesehatan")
             );
         }
         return null; 
     }
 
-    /**
-     * Menghitung jumlah kucing berdasarkan status kesehatan tertentu.
-     */
+    // Menghitung jumlah kucing berdasarkan status makan.
     public long countByStatus(String status) {
-        org.bson.conversions.Bson filter = com.mongodb.client.model.Filters.eq("statusKesehatan", status);
+        org.bson.conversions.Bson filter = com.mongodb.client.model.Filters.eq("statusMakan", status);
+        return collection.countDocuments(filter);
+    }
+
+    // Menghitung jumlah kucing berdasarkan kondisi kesehatan tertentu.
+    public long countByKondisi(String kondisi) {
+        org.bson.conversions.Bson filter = com.mongodb.client.model.Filters.eq("kondisiKesehatan", kondisi);
         return collection.countDocuments(filter);
     }
 }

@@ -13,7 +13,7 @@ public class DialogAnabul extends JDialog {
     public enum Mode { TAMBAH, EDIT, HAPUS }
     
     private JTextField txtId, txtNama, txtUmur;
-    private JComboBox<String> cbRas, cbKandang, cbStatus;
+    private JComboBox<String> cbRas, cbKandang, cbStatus, cbKondisi;
     private JButton btnAction;
     private JLabel lblTitle;
     private final Mode currentMode;
@@ -34,7 +34,8 @@ public class DialogAnabul extends JDialog {
         txtUmur.setText(String.valueOf(k.getUmur()));
         cbRas.setSelectedItem(k.getRas());
         cbKandang.setSelectedItem(k.getKandang());
-        cbStatus.setSelectedItem(k.getStatusKesehatan());
+        cbStatus.setSelectedItem(k.getStatusMakan());
+        cbKondisi.setSelectedItem(k.getKondisiKesehatan());
         
         if (currentMode == Mode.HAPUS) {
             txtNama.setEditable(false);
@@ -42,6 +43,7 @@ public class DialogAnabul extends JDialog {
             cbRas.setEnabled(false);
             cbKandang.setEnabled(false);
             cbStatus.setEnabled(false);
+            cbKondisi.setEnabled(false);
         }
     }
 
@@ -53,7 +55,8 @@ public class DialogAnabul extends JDialog {
             cbRas.getSelectedItem().toString(),
             Integer.parseInt(txtUmur.getText()),
             cbKandang.getSelectedItem().toString(),
-            cbStatus.getSelectedItem().toString()
+            cbStatus.getSelectedItem().toString(),
+            cbKondisi.getSelectedItem().toString()
         );
 
         if (currentMode == Mode.TAMBAH) {
@@ -70,7 +73,7 @@ public class DialogAnabul extends JDialog {
     // UI & Theme
 
     private void initLayout() {
-        setSize(500, 520);
+        setSize(500, 570);
         setLocationRelativeTo(getOwner());
         setLayout(new AbsoluteLayout());
 
@@ -82,11 +85,12 @@ public class DialogAnabul extends JDialog {
         addLabelCombo("Ras", 180, cbRas = new JComboBox<>(new String[]{"Persia", "Anggora", "Kampung", "Siam"}));
         addLabelInput("Umur (bln)", 230, txtUmur = new JTextField());
         addLabelCombo("Kandang", 280, cbKandang = new JComboBox<>(new String[]{"A1", "A2", "B1", "B2", "C1"}));
-        addLabelCombo("Status", 330, cbStatus = new JComboBox<>(new String[]{"Sudah Makan", "Belum Makan", "Sakit", "Meninggal", "Sehat"}));
+        addLabelCombo("Status Makan", 330, cbStatus = new JComboBox<>(new String[]{"Sudah Makan", "Belum Makan"}));
+        addLabelCombo("Kondisi", 380, cbKondisi = new JComboBox<>(new String[]{"Sehat", "Sakit", "Meninggal"}));
 
         btnAction = new JButton(currentMode == Mode.TAMBAH ? "TAMBAH" : (currentMode == Mode.EDIT ? "EDIT" : "HAPUS"));
         btnAction.addActionListener(e -> executeAction());
-        add(btnAction, new AbsoluteConstraints(330, 410, 120, 45));
+        add(btnAction, new AbsoluteConstraints(330, 460, 120, 45));
     }
 
     private void addLabelInput(String label, int y, JTextField field) {

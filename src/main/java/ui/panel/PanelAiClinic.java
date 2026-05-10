@@ -26,7 +26,7 @@ public class PanelAiClinic extends JPanel {
         if (!msg.isEmpty()) {
             txtChat.append("User: " + msg + "\n");
             txtInput.setText("");
-            txtChat.append("AI: Sedang memproses pertanyaan Anda...\n\n");
+            txtChat.append("AI:...\n\n");
         }
     }
 
@@ -70,7 +70,7 @@ public class PanelAiClinic extends JPanel {
 
         txtInput.setBackground(new Color(217, 217, 217));
         txtInput.setBorder(BorderFactory.createEmptyBorder(5, 15, 5, 15));
-        
+
         btnSend.setBackground(ThemeManager.NAVY);
         btnSend.setForeground(Color.WHITE);
         btnSend.setFont(ThemeManager.FONT_BOLD_14);

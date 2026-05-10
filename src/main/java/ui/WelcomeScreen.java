@@ -9,7 +9,7 @@ import org.netbeans.lib.awtextra.AbsoluteLayout;
 public class WelcomeScreen extends JFrame {
 
     private JPanel mainPanel, contentContainer;
-    private JLabel lblTitle, lblAppName;
+    private JLabel lblImage, lblTitle, lblAppName;
     private JButton btnMasuk, btnDaftar;
 
     public WelcomeScreen() {
@@ -43,10 +43,19 @@ public class WelcomeScreen extends JFrame {
         contentContainer.setPreferredSize(new Dimension(1000, 700));
 
         lblTitle = new JLabel("Welcome to the", SwingConstants.CENTER);
-        contentContainer.add(lblTitle, new AbsoluteConstraints(0, 150, 1000, -1));
+        contentContainer.add(lblTitle, new AbsoluteConstraints(0, 80, 1000, -1));
 
         lblAppName = new JLabel("MeowTap", SwingConstants.CENTER);
-        contentContainer.add(lblAppName, new AbsoluteConstraints(0, 200, 1000, -1));
+        contentContainer.add(lblAppName, new AbsoluteConstraints(0, 130, 1000, -1));
+
+        try {
+            ImageIcon iconCat = new ImageIcon(getClass().getResource("/kucing-login.png"));
+            Image img = iconCat.getImage().getScaledInstance(250, 250, Image.SCALE_SMOOTH);
+            lblImage = new JLabel(new ImageIcon(img), SwingConstants.CENTER);
+            contentContainer.add(lblImage, new AbsoluteConstraints(0, 180, 1000, 250));
+        } catch (Exception e) {
+            System.out.println("Gambar kucing-login.png tidak ditemukan!");
+        }
 
         btnMasuk = new JButton("LOGIN");
         btnMasuk.addActionListener(e -> openLogin());

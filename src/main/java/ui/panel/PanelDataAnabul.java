@@ -40,7 +40,8 @@ public class PanelDataAnabul extends JPanel {
                 k.getRas(),
                 k.getUmur() + " bln",
                 k.getKandang(),
-                k.getStatusKesehatan()
+                k.getStatusMakan(),
+                k.getKondisiKesehatan()
             });
         }
     }
@@ -88,7 +89,7 @@ public class PanelDataAnabul extends JPanel {
         add(btnEdit, new AbsoluteConstraints(550, 80, 100, 40));
         add(btnHapus, new AbsoluteConstraints(660, 80, 100, 40));
 
-        String[] cols = {"ID RFID", "Nama", "Ras", "Umur", "Kandang", "Status"};
+        String[] cols = {"ID RFID", "Nama", "Ras", "Umur", "Kandang", "Status Makan", "Kondisi"};
         tableModel = new DefaultTableModel(cols, 0);
         table = new JTable(tableModel);
         scrollPane = new JScrollPane(table);

@@ -6,18 +6,20 @@ public class Kucing {
     private String ras;
     private int umur; // bulan
     private String kandang;
-    private String statusKesehatan;
+    private String statusMakan;
+    private String kondisiKesehatan;
 
     public Kucing() {
     }
 
-    public Kucing(String idRfid, String nama, String ras, int umur, String kandang, String statusKesehatan) {
+    public Kucing(String idRfid, String nama, String ras, int umur, String kandang, String statusMakan, String kondisiKesehatan) {
         this.idRfid = idRfid;
         this.nama = nama;
         this.ras = ras;
         this.umur = umur;
         this.kandang = kandang;
-        this.statusKesehatan = statusKesehatan;
+        this.statusMakan = statusMakan;
+        this.kondisiKesehatan = kondisiKesehatan;
     }
 
     public String getIdRfid() {
@@ -60,11 +62,19 @@ public class Kucing {
         this.kandang = kandang;
     }
 
-    public String getStatusKesehatan() {
-        return statusKesehatan;
+    public String getStatusMakan() {
+        return statusMakan;
     }
 
-    public void setStatusKesehatan(String statusKesehatan) {
-        this.statusKesehatan = statusKesehatan;
+    public void setStatusMakan(String statusMakan) {
+        this.statusMakan = statusMakan;
+    }
+
+    public String getKondisiKesehatan() {
+        return kondisiKesehatan;
+    }
+
+    public void setKondisiKesehatan(String kondisiKesehatan) {
+        this.kondisiKesehatan = kondisiKesehatan;
     }
 }

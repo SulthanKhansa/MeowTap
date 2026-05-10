@@ -10,10 +10,7 @@ public class DatabaseConnection {
     private static final String DATABASE_NAME = "meowtap_db";
     private static MongoClient mongoClient = null;
 
-    /**
-     * Mendapatkan koneksi ke database MongoDB.
-     * @return MongoDatabase instance
-     */
+    // Mendapatkan koneksi ke database MongoDB.
     public static MongoDatabase getDatabase() {
         if (mongoClient == null) {
             try {

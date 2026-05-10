@@ -17,6 +17,8 @@ public class PanelBeranda extends JPanel {
     private JLabel lblSudahMakan, lblBelumMakan, lblSakit, lblMeninggal;
     private JPanel pnlAdmin, pnlStats, pnlScanner;
     private JLabel lblAdmin, lblSummary, lblScanInfo;
+    private JTable tablePreview;
+    private javax.swing.table.DefaultTableModel tableModel;
 
     public PanelBeranda(Admin admin) {
         this.sessionAdmin = admin;
@@ -31,8 +33,10 @@ public class PanelBeranda extends JPanel {
     public void refreshStats() {
         lblSudahMakan.setText(String.valueOf(dao.countByStatus("Sudah Makan")));
         lblBelumMakan.setText(String.valueOf(dao.countByStatus("Belum Makan")));
-        lblSakit.setText(String.valueOf(dao.countByStatus("Sakit")));
-        lblMeninggal.setText(String.valueOf(dao.countByStatus("Meninggal")));
+        lblSakit.setText(String.valueOf(dao.countByKondisi("Sakit")));
+        lblMeninggal.setText(String.valueOf(dao.countByKondisi("Meninggal")));
+        
+        loadTablePreview();
     }
 
     // UI & Theme
@@ -63,14 +67,26 @@ public class PanelBeranda extends JPanel {
         add(pnlStats, new AbsoluteConstraints(30, 90, 680, 140));
 
         pnlScanner = new JPanel(new BorderLayout());
+        pnlScanner.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        
         lblScanInfo = new JLabel("Scanner siap - Tap kalung ke USB Reader", SwingConstants.CENTER);
         lblScanInfo.setIcon(FontIcon.of(Feather.MAXIMIZE, 18, Color.WHITE));
         lblScanInfo.setIconTextGap(15);
         pnlScanner.add(lblScanInfo, BorderLayout.CENTER);
+        
+        pnlScanner.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                Window topFrame = SwingUtilities.getWindowAncestor(PanelBeranda.this);
+                if (topFrame instanceof ui.MainDashboard) {
+                    ((ui.MainDashboard) topFrame).switchPanel("cardScan");
+                }
+            }
+        });
+        
         add(pnlScanner, new AbsoluteConstraints(30, 250, 680, 150));
 
-        add(createBottomBox("Data Anabul (Tabel Preview)"), new AbsoluteConstraints(30, 420, 330, 250));
-        add(createBottomBox("AI Clinic (Chat Preview)"), new AbsoluteConstraints(380, 420, 330, 250));
+        add(createTablePreviewBox(), new AbsoluteConstraints(30, 420, 330, 250));
+        add(createBottomBox("AI Clinic (Segera Hadir)"), new AbsoluteConstraints(380, 420, 330, 250));
     }
 
     private JPanel createStatBox(String title, JLabel lblValue, Color bg) {
@@ -94,6 +110,45 @@ public class PanelBeranda extends JPanel {
         l.setForeground(Color.WHITE);
         p.add(l, BorderLayout.CENTER);
         return p;
+    }
+
+    private JPanel createTablePreviewBox() {
+        JPanel p = new JPanel(new BorderLayout());
+        p.setBackground(ThemeManager.DARK_BLUE);
+        
+        JLabel lblTop = new JLabel("  Preview Data Anabul");
+        lblTop.setForeground(Color.WHITE);
+        lblTop.setFont(ThemeManager.FONT_BOLD_14);
+        lblTop.setPreferredSize(new Dimension(0, 30));
+        p.add(lblTop, BorderLayout.NORTH);
+
+        String[] cols = {"ID", "Nama", "Kandang", "Status"};
+        tableModel = new javax.swing.table.DefaultTableModel(cols, 0);
+        tablePreview = new JTable(tableModel);
+        tablePreview.setRowHeight(25);
+        
+        JScrollPane scroll = new JScrollPane(tablePreview);
+        p.add(scroll, BorderLayout.CENTER);
+        
+        return p;
+    }
+
+    private void loadTablePreview() {
+        if (tableModel == null) return;
+        tableModel.setRowCount(0);
+        java.util.List<model.Kucing> list = dao.findAll();
+        
+        // Tampilkan maksimal 10 data saja untuk preview
+        int limit = Math.min(list.size(), 10);
+        for (int i = 0; i < limit; i++) {
+            model.Kucing k = list.get(i);
+            tableModel.addRow(new Object[]{
+                k.getIdRfid(),
+                k.getNama(),
+                k.getKandang(),
+                k.getStatusMakan()
+            });
+        }
     }
 
     private void applyTheme() {

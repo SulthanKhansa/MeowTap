@@ -27,7 +27,7 @@ public class MainDashboard extends JFrame {
 
     // Login & Actions
 
-    private void switchPanel(String cardName) {
+    public void switchPanel(String cardName) {
         cardLayout.show(panelKonten, cardName);
         if (cardName.equals("cardBeranda")) {
             pnlBeranda.refreshStats();
@@ -52,7 +52,15 @@ public class MainDashboard extends JFrame {
         panelSidebar.setPreferredSize(new Dimension(260, 0));
 
         lblLogo = new JLabel("MeowTap");
-        panelSidebar.add(lblLogo, new AbsoluteConstraints(30, 40, -1, -1));
+        try {
+            ImageIcon iconLogo = new ImageIcon(getClass().getResource("/Logo.png"));
+            Image imgLogo = iconLogo.getImage().getScaledInstance(95, 95, Image.SCALE_SMOOTH);
+            lblLogo.setIcon(new ImageIcon(imgLogo));
+            lblLogo.setIconTextGap(3);
+        } catch (Exception e) {
+            System.out.println("Gambar Logo.png tidak ditemukan!");
+        }
+        panelSidebar.add(lblLogo, new AbsoluteConstraints(10, 15, -1, -1));
 
         btnNavBeranda = createNavButton("Beranda", 150, "cardBeranda", Feather.HOME);
         btnNavScan = createNavButton("Scan RFID", 210, "cardScan", Feather.MAXIMIZE);
