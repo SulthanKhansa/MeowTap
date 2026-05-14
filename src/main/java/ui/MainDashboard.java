@@ -21,6 +21,7 @@ public class MainDashboard extends JFrame {
     private PanelScanRfid pnlScan;
     private PanelDataAnabul pnlData;
     private PanelAiClinic pnlAi;
+    private PanelInformasiAkun pnlAkun;
     private boolean isEnglish = false;
 
     public MainDashboard(Admin admin) {
@@ -108,11 +109,13 @@ public class MainDashboard extends JFrame {
         pnlScan = new PanelScanRfid(sessionAdmin);
         pnlData = new PanelDataAnabul();
         pnlAi = new PanelAiClinic();
+        pnlAkun = new PanelInformasiAkun(sessionAdmin);
 
         panelKonten.add(pnlBeranda, "cardBeranda");
         panelKonten.add(pnlScan, "cardScan");
         panelKonten.add(pnlData, "cardData");
         panelKonten.add(pnlAi, "cardAI");
+        panelKonten.add(pnlAkun, "cardAkun");
 
         getContentPane().add(panelKonten, BorderLayout.CENTER);
     }

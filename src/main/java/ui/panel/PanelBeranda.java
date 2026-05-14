@@ -43,6 +43,8 @@ public final class PanelBeranda extends JPanel {
         lblSehat.setText(String.valueOf(dao.countByKondisi("Sehat")));
         
         loadTablePreview();
+        tablePreview.repaint();
+        tableModel.fireTableDataChanged();
     }
 
     private void loadTablePreview() {
@@ -131,6 +133,20 @@ public final class PanelBeranda extends JPanel {
         lblAdmin.setIcon(FontIcon.of(Feather.USER, 20, Color.WHITE));
         lblAdmin.setIconTextGap(10);
         pnlAdmin.add(lblAdmin, BorderLayout.CENTER);
+
+    pnlAdmin.setCursor(new Cursor(Cursor.HAND_CURSOR));
+
+    pnlAdmin.addMouseListener(new java.awt.event.MouseAdapter() {
+        @Override
+        public void mouseClicked(java.awt.event.MouseEvent evt) {
+
+            Window topFrame = SwingUtilities.getWindowAncestor(PanelBeranda.this);
+
+            if (topFrame instanceof ui.MainDashboard mainDashboard) {
+                mainDashboard.switchPanel("cardAkun");
+            }
+        }
+    });
         add(pnlAdmin, new AbsoluteConstraints(offsetX + 380, 20, 240, 60));
 
         btnLang = new JToggleButton("ID ", FontIcon.of(Feather.TOGGLE_LEFT, 24, new Color(200, 200, 200)));

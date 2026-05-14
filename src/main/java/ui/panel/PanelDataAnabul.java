@@ -19,8 +19,8 @@ public final class PanelDataAnabul extends JPanel {
     private JScrollPane scrollPane;
     private JTextField txtSearch, txtId, txtNama, txtUmur;
     private JComboBox<String> cbRas, cbKandang, cbStatus, cbKondisi;
-    private JButton btnInsert, btnUpdate, btnSave;
     private JLabel lblTitle;
+    private JButton btnUpdate, btnSave;
     private JLabel lblLID, lblLNama, lblLUmur, lblLRas, lblLKandang, lblLStatus, lblLKondisi;
     private List<Kucing> allKucing;
     private boolean isEnglish = false;
@@ -119,8 +119,8 @@ public final class PanelDataAnabul extends JPanel {
             y += 22;
         }
 
-        JButton btnEdit = new JButton("EDIT");
-        JButton btnDelete = new JButton("DELETE");
+        JButton btnEdit = new JButton(isEnglish ? "EDIT" : "UBAH");
+        JButton btnDelete = new JButton(isEnglish ? "DELETE" : "HAPUS");
         
         styleCardBtn(btnEdit, ThemeManager.STAT_YELLOW, Color.BLACK);
         styleCardBtn(btnDelete, ThemeManager.STAT_RED, Color.WHITE);
@@ -151,8 +151,6 @@ public final class PanelDataAnabul extends JPanel {
         cbStatus.setSelectedItem(k.getStatusMakan());
         cbKondisi.setSelectedItem(k.getKondisiKesehatan());
         
-        btnInsert.setEnabled(false);
-        btnInsert.setBackground(new Color(150, 150, 150));
     }
 
     private String trans(String val) {
@@ -181,22 +179,19 @@ public final class PanelDataAnabul extends JPanel {
         cbStatus.setSelectedIndex(0);
         cbKondisi.setSelectedIndex(0);
         
-        btnInsert.setEnabled(true);
-        btnInsert.setBackground(ThemeManager.STAT_YELLOW);
-        loadData();
     }
 
     private void executeAction(boolean isInsert) {
         try {
-            Kucing k = new Kucing(
-                txtId.getText(),
-                txtNama.getText(),
-                cbRas.getSelectedItem().toString(),
-                Integer.parseInt(txtUmur.getText()),
-                cbKandang.getSelectedItem().toString(),
-                cbStatus.getSelectedItem().toString(),
-                cbKondisi.getSelectedItem().toString()
-            );
+                    Kucing k = new Kucing(
+            txtId.getText(),
+            txtNama.getText(),
+            cbRas.getSelectedItem().toString(),
+            Integer.parseInt(txtUmur.getText()),
+            cbKandang.getSelectedItem().toString(),
+            reverseTrans(cbStatus.getSelectedItem().toString()),
+            reverseTrans(cbKondisi.getSelectedItem().toString())
+        );
             KucingDAO dao = new KucingDAO();
             if (isInsert) dao.insert(k);
             else dao.update(k);
@@ -220,7 +215,6 @@ public final class PanelDataAnabul extends JPanel {
             lblTitle.setText("Anabul Directory");
             txtSearch.putClientProperty("JTextField.placeholderText", "Search name or ID...");
             btnSave.setText("REFRESH");
-            btnInsert.setText("INSERT");
             btnUpdate.setText("UPDATE");
             
             lblLID.setText("ID:");
@@ -237,7 +231,6 @@ public final class PanelDataAnabul extends JPanel {
             lblTitle.setText("Direktori Anabul");
             txtSearch.putClientProperty("JTextField.placeholderText", "Cari nama atau ID...");
             btnSave.setText("REFRESH");
-            btnInsert.setText("INSERT");
             btnUpdate.setText("UPDATE");
             
             lblLID.setText("ID:");
@@ -269,22 +262,18 @@ public final class PanelDataAnabul extends JPanel {
         txtSearch = new JTextField();
         txtSearch.putClientProperty("JTextField.placeholderText", "Cari nama atau ID...");
         txtSearch.setBorder(new EmptyBorder(0, 10, 0, 40));
-        pnlForm.add(txtSearch, new AbsoluteConstraints(20, 15, 380, 40));
+        pnlForm.add(txtSearch, new AbsoluteConstraints(20, 15, 520, 40));
         
         JLabel lblSearchIcon = new JLabel(FontIcon.of(Feather.SEARCH, 18, Color.GRAY));
-        pnlForm.add(lblSearchIcon, new AbsoluteConstraints(365, 25, -1, -1));
+        pnlForm.add(lblSearchIcon, new AbsoluteConstraints(505, 25, -1, -1));
 
         btnSave = new JButton("REFRESH");
         btnSave.addActionListener(e -> clearForm());
-        pnlForm.add(btnSave, new AbsoluteConstraints(415, 15, 130, 40));
-
-        btnInsert = new JButton("INSERT");
-        btnInsert.addActionListener(e -> executeAction(true));
-        pnlForm.add(btnInsert, new AbsoluteConstraints(560, 15, 185, 40));
+        pnlForm.add(btnSave, new AbsoluteConstraints(560, 15, 160, 40));
 
         btnUpdate = new JButton("UPDATE");
         btnUpdate.addActionListener(e -> executeAction(false));
-        pnlForm.add(btnUpdate, new AbsoluteConstraints(755, 15, 185, 40));
+        pnlForm.add(btnUpdate, new AbsoluteConstraints(740, 15, 200, 40));
 
         lblLID = createFormLabel("ID:");
         pnlForm.add(lblLID, new AbsoluteConstraints(20, 65, -1, -1));
@@ -370,16 +359,14 @@ public final class PanelDataAnabul extends JPanel {
         return l;
     }
 
-    private void applyTheme() {
+        private void applyTheme() {
         setBackground(ThemeManager.LAVENDER);
         lblTitle.setFont(ThemeManager.FONT_WELCOME);
         lblTitle.setForeground(ThemeManager.WHITE);
 
         styleBtn(btnUpdate, ThemeManager.STAT_RED, Color.WHITE);
-        styleBtn(btnInsert, ThemeManager.STAT_YELLOW, Color.BLACK);
         styleBtn(btnSave, ThemeManager.STAT_GREEN, Color.WHITE);
     }
-
     private void styleBtn(JButton b, Color bg, Color fg) {
         b.setBackground(bg);
         b.setForeground(fg);
@@ -397,4 +384,22 @@ public final class PanelDataAnabul extends JPanel {
         b.setBorderPainted(false);
         b.setCursor(new Cursor(Cursor.HAND_CURSOR));
     }
+    private String reverseTrans(String val) {
+
+    if (val == null) return "-";
+
+    String v = val.trim().toLowerCase();
+
+    return switch (v) {
+
+        case "fed" -> "Sudah makan";
+        case "not fed" -> "Belum makan";
+
+        case "healthy" -> "Sehat";
+        case "sick" -> "Sakit";
+        case "deceased" -> "Meninggal";
+
+        default -> val;
+    };
+}
 }
