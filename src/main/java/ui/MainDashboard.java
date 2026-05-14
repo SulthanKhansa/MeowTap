@@ -18,6 +18,10 @@ public class MainDashboard extends JFrame {
     private JLabel lblLogo;
     private final Admin sessionAdmin;
     private PanelBeranda pnlBeranda;
+    private PanelScanRfid pnlScan;
+    private PanelDataAnabul pnlData;
+    private PanelAiClinic pnlAi;
+    private boolean isEnglish = false;
 
     public MainDashboard(Admin admin) {
         this.sessionAdmin = admin;
@@ -25,13 +29,28 @@ public class MainDashboard extends JFrame {
         applyTheme();
     }
 
-    // Login & Actions
+    // --- Logic & Actions ---
 
-    public void switchPanel(String cardName) {
-        cardLayout.show(panelKonten, cardName);
-        if (cardName.equals("cardBeranda")) {
-            pnlBeranda.refreshStats();
+    public void setLanguage(boolean eng) {
+        this.isEnglish = eng;
+        if (isEnglish) {
+            btnNavBeranda.setText("Home");
+            btnNavScan.setText("Scan RFID");
+            btnNavData.setText("Anabul Data");
+            btnNavAI.setText("AI Clinic");
+            btnLogout.setText("LOGOUT");
+        } else {
+            btnNavBeranda.setText("Beranda");
+            btnNavScan.setText("Scan RFID");
+            btnNavData.setText("Data Anabul");
+            btnNavAI.setText("AI Clinic");
+            btnLogout.setText("KELUAR");
         }
+        
+        pnlBeranda.setLanguage(eng);
+        pnlScan.setLanguage(eng);
+        pnlData.setLanguage(eng);
+        pnlAi.setLanguage(eng);
     }
 
     private void prosesLogout() {
@@ -39,13 +58,21 @@ public class MainDashboard extends JFrame {
         this.dispose();
     }
 
-    // UI & Theme
+    public void switchPanel(String cardName) {
+        cardLayout.show(panelKonten, cardName);
+        if (cardName.equals("cardBeranda")) {
+            pnlBeranda.refreshStats();
+        } else if (cardName.equals("cardData")) {
+            pnlData.loadData();
+        }
+    }
+
+    // --- UI & Theme ---
 
     private void initCustomComponents() {
         setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
         setTitle("MeowTap Dashboard - " + sessionAdmin.getNamaLengkap());
         setExtendedState(JFrame.MAXIMIZED_BOTH);
-
         getContentPane().setLayout(new BorderLayout());
 
         panelSidebar = new JPanel(new AbsoluteLayout());
@@ -57,9 +84,8 @@ public class MainDashboard extends JFrame {
             Image imgLogo = iconLogo.getImage().getScaledInstance(95, 95, Image.SCALE_SMOOTH);
             lblLogo.setIcon(new ImageIcon(imgLogo));
             lblLogo.setIconTextGap(3);
-        } catch (Exception e) {
-            System.out.println("Gambar Logo.png tidak ditemukan!");
-        }
+        } catch (Exception e) {}
+        
         panelSidebar.add(lblLogo, new AbsoluteConstraints(10, 15, -1, -1));
 
         btnNavBeranda = createNavButton("Beranda", 150, "cardBeranda", Feather.HOME);
@@ -71,18 +97,22 @@ public class MainDashboard extends JFrame {
         btnLogout.setIcon(FontIcon.of(Feather.LOG_OUT, 16, Color.WHITE));
         btnLogout.setIconTextGap(10);
         btnLogout.addActionListener(e -> prosesLogout());
-        panelSidebar.add(btnLogout, new AbsoluteConstraints(20, 650, 220, 45));
+        panelSidebar.add(btnLogout, new AbsoluteConstraints(20, 610, 220, 45));
 
         getContentPane().add(panelSidebar, BorderLayout.WEST);
 
         cardLayout = new CardLayout();
         panelKonten = new JPanel(cardLayout);
         
-        pnlBeranda = new PanelBeranda(sessionAdmin);
+        pnlBeranda = new PanelBeranda(this, sessionAdmin);
+        pnlScan = new PanelScanRfid(sessionAdmin);
+        pnlData = new PanelDataAnabul();
+        pnlAi = new PanelAiClinic();
+
         panelKonten.add(pnlBeranda, "cardBeranda");
-        panelKonten.add(new PanelScanRfid(sessionAdmin), "cardScan");
-        panelKonten.add(new PanelDataAnabul(), "cardData");
-        panelKonten.add(new PanelAiClinic(), "cardAI");
+        panelKonten.add(pnlScan, "cardScan");
+        panelKonten.add(pnlData, "cardData");
+        panelKonten.add(pnlAi, "cardAI");
 
         getContentPane().add(panelKonten, BorderLayout.CENTER);
     }

@@ -1,24 +1,29 @@
 package ui.panel;
 
 import ui.style.ThemeManager;
-import ui.dialog.DialogAnabul;
 import dao.KucingDAO;
 import model.Kucing;
 import java.awt.*;
 import java.util.List;
+import java.util.stream.Collectors;
 import javax.swing.*;
-import javax.swing.table.DefaultTableModel;
+import javax.swing.border.EmptyBorder;
 import org.netbeans.lib.awtextra.AbsoluteConstraints;
 import org.netbeans.lib.awtextra.AbsoluteLayout;
+import org.kordamp.ikonli.feather.Feather;
+import org.kordamp.ikonli.swing.FontIcon;
 
-public class PanelDataAnabul extends JPanel {
+public final class PanelDataAnabul extends JPanel {
 
-    private JTable table;
-    private DefaultTableModel tableModel;
+    private JPanel cardContainer, pnlForm;
     private JScrollPane scrollPane;
-    private JTextField txtSearch;
-    private JButton btnTambah, btnEdit, btnHapus;
+    private JTextField txtSearch, txtId, txtNama, txtUmur;
+    private JComboBox<String> cbRas, cbKandang, cbStatus, cbKondisi;
+    private JButton btnInsert, btnUpdate, btnSave;
     private JLabel lblTitle;
+    private JLabel lblLID, lblLNama, lblLUmur, lblLRas, lblLKandang, lblLStatus, lblLKondisi;
+    private List<Kucing> allKucing;
+    private boolean isEnglish = false;
 
     public PanelDataAnabul() {
         initLayout();
@@ -26,96 +31,370 @@ public class PanelDataAnabul extends JPanel {
         loadData();
     }
 
-    // Logic & Actions
+    // --- Logic & Actions ---
 
     public void loadData() {
-        tableModel.setRowCount(0);
         KucingDAO dao = new KucingDAO();
-        List<Kucing> list = dao.findAll();
+        allKucing = dao.findAll();
         
-        for (Kucing k : list) {
-            tableModel.addRow(new Object[]{
-                k.getIdRfid(),
-                k.getNama(),
-                k.getRas(),
-                k.getUmur() + " bln",
-                k.getKandang(),
-                k.getStatusMakan(),
-                k.getKondisiKesehatan()
-            });
-        }
+        allKucing.sort((k1, k2) -> {
+            try {
+                return Integer.compare(Integer.parseInt(k1.getIdRfid()), Integer.parseInt(k2.getIdRfid()));
+            } catch (NumberFormatException e) {
+                return k1.getIdRfid().compareTo(k2.getIdRfid());
+            }
+        });
+
+        renderCards(allKucing);
     }
 
-    private void showDialog(DialogAnabul.Mode mode) {
-        Frame parent = (Frame) SwingUtilities.getWindowAncestor(this);
-        DialogAnabul dialog = new DialogAnabul(parent, mode);
-        
-        if (mode != DialogAnabul.Mode.TAMBAH) {
-            int row = table.getSelectedRow();
-            if (row == -1) {
-                JOptionPane.showMessageDialog(this, "Pilih data di tabel terlebih dahulu!");
-                return;
-            }
-            String id = table.getValueAt(row, 0).toString();
-            Kucing k = new KucingDAO().findById(id);
-            dialog.prepareData(k);
+    private void renderCards(List<Kucing> list) {
+        cardContainer.removeAll();
+        for (Kucing k : list) {
+            cardContainer.add(createCard(k));
         }
         
-        dialog.setVisible(true);
+        int fillersNeeded = 3 - (list.size() % 3);
+        if (list.size() % 3 != 0) {
+            for (int i = 0; i < fillersNeeded; i++) {
+                JPanel filler = new JPanel();
+                filler.setOpaque(false);
+                cardContainer.add(filler);
+            }
+        } else if (list.isEmpty()) {
+            for (int i = 0; i < 3; i++) {
+                JPanel filler = new JPanel();
+                filler.setOpaque(false);
+                cardContainer.add(filler);
+            }
+        }
+        
+        cardContainer.revalidate();
+        cardContainer.repaint();
+    }
+
+    private String fmt(String val) {
+        return (val == null || val.equalsIgnoreCase("null") || val.isEmpty()) ? "-" : val;
+    }
+
+    private JPanel createCard(Kucing k) {
+        JPanel card = new JPanel(new AbsoluteLayout());
+        card.setPreferredSize(new Dimension(300, 240)); 
+        card.setBackground(ThemeManager.NAVY);
+        
+        int y = 20;
+        String[][] data;
+        if (isEnglish) {
+            data = new String[][]{
+                {"ID", fmt(k.getIdRfid())},
+                {"Name", fmt(k.getNama())},
+                {"Breed", trans(k.getRas())},
+                {"Age", k.getUmur() + " month"},
+                {"Cage", fmt(k.getKandang())},
+                {"Status", trans(k.getStatusMakan())},
+                {"Condition", trans(k.getKondisiKesehatan())}
+            };
+        } else {
+            data = new String[][]{
+                {"ID", fmt(k.getIdRfid())},
+                {"Nama", fmt(k.getNama())},
+                {"Ras", fmt(k.getRas())},
+                {"Umur", k.getUmur() + " bulan"},
+                {"Kandang", fmt(k.getKandang())},
+                {"Status", fmt(k.getStatusMakan())},
+                {"Kondisi", fmt(k.getKondisiKesehatan())}
+            };
+        }
+
+        for (String[] row : data) {
+            JLabel lblKey = new JLabel(row[0]);
+            lblKey.setForeground(new Color(200, 200, 200));
+            lblKey.setFont(new Font("Segoe UI", Font.BOLD, 13));
+            card.add(lblKey, new AbsoluteConstraints(25, y, 70, -1));
+
+            JLabel lblVal = new JLabel(":  " + row[1]);
+            lblVal.setForeground(Color.WHITE);
+            lblVal.setFont(new Font("Segoe UI", Font.PLAIN, 13));
+            card.add(lblVal, new AbsoluteConstraints(100, y, 180, -1));
+            y += 22;
+        }
+
+        JButton btnEdit = new JButton("EDIT");
+        JButton btnDelete = new JButton("DELETE");
+        
+        styleCardBtn(btnEdit, ThemeManager.STAT_YELLOW, Color.BLACK);
+        styleCardBtn(btnDelete, ThemeManager.STAT_RED, Color.WHITE);
+        
+        btnEdit.addActionListener(e -> fillForm(k));
+        btnDelete.addActionListener(e -> {
+            String msg = isEnglish ? "Delete " + k.getNama() + " data?" : "Hapus data " + k.getNama() + "?";
+            String title = isEnglish ? "Confirm" : "Hapus";
+            int conf = JOptionPane.showConfirmDialog(this, msg, title, JOptionPane.YES_NO_OPTION);
+            if (conf == JOptionPane.YES_OPTION) {
+                new KucingDAO().delete(k.getIdRfid());
+                loadData();
+            }
+        });
+
+        card.add(btnEdit, new AbsoluteConstraints(25, 190, 125, 32));
+        card.add(btnDelete, new AbsoluteConstraints(160, 190, 125, 32));
+
+        return card;
+    }
+
+    private void fillForm(Kucing k) {
+        txtId.setText(k.getIdRfid());
+        txtNama.setText(k.getNama());
+        txtUmur.setText(String.valueOf(k.getUmur()));
+        cbRas.setSelectedItem(k.getRas());
+        cbKandang.setSelectedItem(k.getKandang());
+        cbStatus.setSelectedItem(k.getStatusMakan());
+        cbKondisi.setSelectedItem(k.getKondisiKesehatan());
+        
+        btnInsert.setEnabled(false);
+        btnInsert.setBackground(new Color(150, 150, 150));
+    }
+
+    private String trans(String val) {
+        if (val == null) return "-";
+        if (!isEnglish) return val;
+        String v = val.trim().toLowerCase();
+        return switch (v) {
+            case "sudah makan" -> "Fed";
+            case "belum makan" -> "Not Fed";
+            case "sehat" -> "Healthy";
+            case "sakit" -> "Sick";
+            case "meninggal" -> "Deceased";
+            case "persia" -> "Persian";
+            case "anggora" -> "Anggora";
+            case "kampung" -> "Domestic";
+            default -> val;
+        };
+    }
+
+    private void clearForm() {
+        txtId.setText("");
+        txtNama.setText("");
+        txtUmur.setText("");
+        cbRas.setSelectedIndex(0);
+        cbKandang.setSelectedIndex(0);
+        cbStatus.setSelectedIndex(0);
+        cbKondisi.setSelectedIndex(0);
+        
+        btnInsert.setEnabled(true);
+        btnInsert.setBackground(ThemeManager.STAT_YELLOW);
         loadData();
     }
 
-    // UI & Theme
+    private void executeAction(boolean isInsert) {
+        try {
+            Kucing k = new Kucing(
+                txtId.getText(),
+                txtNama.getText(),
+                cbRas.getSelectedItem().toString(),
+                Integer.parseInt(txtUmur.getText()),
+                cbKandang.getSelectedItem().toString(),
+                cbStatus.getSelectedItem().toString(),
+                cbKondisi.getSelectedItem().toString()
+            );
+            KucingDAO dao = new KucingDAO();
+            if (isInsert) dao.insert(k);
+            else dao.update(k);
+            
+            clearForm();
+            String msg;
+            if (isEnglish) msg = isInsert ? "Data successfully added!" : "Data successfully updated!";
+            else msg = isInsert ? "Data berhasil ditambahkan!" : "Data berhasil diupdate!";
+            
+            JOptionPane.showMessageDialog(this, msg);
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(this, isEnglish ? "Error: Please check your input!" : "Error: Cek kembali inputan anda!");
+        }
+    }
+
+    // --- UI & Theme ---
+
+    public void setLanguage(boolean eng) {
+        this.isEnglish = eng;
+        if (isEnglish) {
+            lblTitle.setText("Anabul Directory");
+            txtSearch.putClientProperty("JTextField.placeholderText", "Search name or ID...");
+            btnSave.setText("REFRESH");
+            btnInsert.setText("INSERT");
+            btnUpdate.setText("UPDATE");
+            
+            lblLID.setText("ID:");
+            lblLNama.setText("Name:");
+            lblLUmur.setText("Age (month):");
+            lblLRas.setText("Breed:");
+            lblLKandang.setText("Cage:");
+            lblLStatus.setText("Status:");
+            lblLKondisi.setText("Condition:");
+            
+            cbStatus.setModel(new DefaultComboBoxModel<>(new String[]{"Fed", "Not Fed"}));
+            cbKondisi.setModel(new DefaultComboBoxModel<>(new String[]{"Healthy", "Sick", "Deceased"}));
+        } else {
+            lblTitle.setText("Direktori Anabul");
+            txtSearch.putClientProperty("JTextField.placeholderText", "Cari nama atau ID...");
+            btnSave.setText("REFRESH");
+            btnInsert.setText("INSERT");
+            btnUpdate.setText("UPDATE");
+            
+            lblLID.setText("ID:");
+            lblLNama.setText("Nama:");
+            lblLUmur.setText("Umur (bulan):");
+            lblLRas.setText("Ras:");
+            lblLKandang.setText("Kandang:");
+            lblLStatus.setText("Status:");
+            lblLKondisi.setText("Kondisi:");
+            
+            cbStatus.setModel(new DefaultComboBoxModel<>(new String[]{"Sudah makan", "Belum makan"}));
+            cbKondisi.setModel(new DefaultComboBoxModel<>(new String[]{"Sehat", "Sakit", "Meninggal"}));
+        }
+        
+        loadData(); 
+        repaint();
+    }
 
     private void initLayout() {
         setLayout(new AbsoluteLayout());
 
         lblTitle = new JLabel("Direktori Anabul");
-        add(lblTitle, new AbsoluteConstraints(20, 20, -1, -1));
+        add(lblTitle, new AbsoluteConstraints(20, 15, -1, -1));
+
+        pnlForm = new JPanel(new AbsoluteLayout());
+        pnlForm.setBackground(ThemeManager.NAVY);
+        add(pnlForm, new AbsoluteConstraints(20, 55, 960, 195));
 
         txtSearch = new JTextField();
-        txtSearch.putClientProperty("JTextField.placeholderText", "Cari nama atau ID RFID...");
-        add(txtSearch, new AbsoluteConstraints(20, 80, 400, 40));
-
-        btnTambah = new JButton("Tambah");
-        btnEdit = new JButton("Edit");
-        btnHapus = new JButton("Hapus");
+        txtSearch.putClientProperty("JTextField.placeholderText", "Cari nama atau ID...");
+        txtSearch.setBorder(new EmptyBorder(0, 10, 0, 40));
+        pnlForm.add(txtSearch, new AbsoluteConstraints(20, 15, 380, 40));
         
-        btnTambah.addActionListener(e -> showDialog(DialogAnabul.Mode.TAMBAH));
-        btnEdit.addActionListener(e -> showDialog(DialogAnabul.Mode.EDIT));
-        btnHapus.addActionListener(e -> showDialog(DialogAnabul.Mode.HAPUS));
+        JLabel lblSearchIcon = new JLabel(FontIcon.of(Feather.SEARCH, 18, Color.GRAY));
+        pnlForm.add(lblSearchIcon, new AbsoluteConstraints(365, 25, -1, -1));
 
-        add(btnTambah, new AbsoluteConstraints(440, 80, 100, 40));
-        add(btnEdit, new AbsoluteConstraints(550, 80, 100, 40));
-        add(btnHapus, new AbsoluteConstraints(660, 80, 100, 40));
+        btnSave = new JButton("REFRESH");
+        btnSave.addActionListener(e -> clearForm());
+        pnlForm.add(btnSave, new AbsoluteConstraints(415, 15, 130, 40));
 
-        String[] cols = {"ID RFID", "Nama", "Ras", "Umur", "Kandang", "Status Makan", "Kondisi"};
-        tableModel = new DefaultTableModel(cols, 0);
-        table = new JTable(tableModel);
-        scrollPane = new JScrollPane(table);
-        add(scrollPane, new AbsoluteConstraints(20, 140, 950, 500));
+        btnInsert = new JButton("INSERT");
+        btnInsert.addActionListener(e -> executeAction(true));
+        pnlForm.add(btnInsert, new AbsoluteConstraints(560, 15, 185, 40));
+
+        btnUpdate = new JButton("UPDATE");
+        btnUpdate.addActionListener(e -> executeAction(false));
+        pnlForm.add(btnUpdate, new AbsoluteConstraints(755, 15, 185, 40));
+
+        lblLID = createFormLabel("ID:");
+        pnlForm.add(lblLID, new AbsoluteConstraints(20, 65, -1, -1));
+        txtId = new JTextField();
+        pnlForm.add(txtId, new AbsoluteConstraints(20, 85, 290, 38));
+
+        lblLNama = createFormLabel("Nama:");
+        pnlForm.add(lblLNama, new AbsoluteConstraints(325, 65, -1, -1));
+        txtNama = new JTextField();
+        pnlForm.add(txtNama, new AbsoluteConstraints(325, 85, 300, 38));
+
+        lblLUmur = createFormLabel("Umur (bulan):");
+        pnlForm.add(lblLUmur, new AbsoluteConstraints(640, 65, -1, -1));
+        txtUmur = new JTextField();
+        pnlForm.add(txtUmur, new AbsoluteConstraints(640, 85, 300, 38));
+
+        lblLRas = createFormLabel("Ras:");
+        pnlForm.add(lblLRas, new AbsoluteConstraints(20, 130, -1, -1));
+        cbRas = new JComboBox<>(new String[]{"Persia", "Anggora", "Siam", "Kampung", "British"});
+        pnlForm.add(cbRas, new AbsoluteConstraints(20, 150, 215, 35));
+
+        lblLKandang = createFormLabel("Kandang:");
+        pnlForm.add(lblLKandang, new AbsoluteConstraints(250, 130, -1, -1));
+        cbKandang = new JComboBox<>(new String[]{"A1", "A2", "B1", "B2", "B3", "C1"});
+        pnlForm.add(cbKandang, new AbsoluteConstraints(250, 150, 215, 35));
+
+        lblLStatus = createFormLabel("Status:");
+        pnlForm.add(lblLStatus, new AbsoluteConstraints(480, 130, -1, -1));
+        cbStatus = new JComboBox<>(new String[]{"Sudah makan", "Belum makan"});
+        pnlForm.add(cbStatus, new AbsoluteConstraints(480, 150, 215, 35));
+
+        lblLKondisi = createFormLabel("Kondisi:");
+        pnlForm.add(lblLKondisi, new AbsoluteConstraints(710, 130, -1, -1));
+        cbKondisi = new JComboBox<>(new String[]{"Sehat", "Sakit", "Meninggal"});
+        pnlForm.add(cbKondisi, new AbsoluteConstraints(710, 150, 230, 35));
+
+        cardContainer = new JPanel(new GridLayout(0, 3, 25, 25));
+        cardContainer.setOpaque(false);
+        cardContainer.setBorder(new EmptyBorder(30, 25, 30, 25));
+        
+        JPanel wrapper = new JPanel(new BorderLayout());
+        wrapper.setOpaque(false);
+        wrapper.add(cardContainer, BorderLayout.NORTH);
+        
+        scrollPane = new JScrollPane(wrapper);
+        scrollPane.setBorder(null);
+        scrollPane.setOpaque(false);
+        scrollPane.getViewport().setOpaque(false);
+        scrollPane.getVerticalScrollBar().setUnitIncrement(16);
+        add(scrollPane, new AbsoluteConstraints(0, 250, 1000, 450));
+
+        txtSearch.addKeyListener(new java.awt.event.KeyAdapter() {
+            @Override
+            public void keyReleased(java.awt.event.KeyEvent evt) {
+                String q = txtSearch.getText().toLowerCase();
+                renderCards(allKucing.stream()
+                    .filter(k -> {
+                        String name = k.getNama().toLowerCase();
+                        String id = k.getIdRfid().toLowerCase();
+                        String breed = k.getRas().toLowerCase();
+                        String breedEn = trans(k.getRas()).toLowerCase();
+                        String cage = k.getKandang().toLowerCase();
+                        String status = k.getStatusMakan().toLowerCase();
+                        String statusEn = trans(k.getStatusMakan()).toLowerCase();
+                        String cond = k.getKondisiKesehatan().toLowerCase();
+                        String condEn = trans(k.getKondisiKesehatan()).toLowerCase();
+                        
+                        return name.contains(q) || id.contains(q) || 
+                               breed.contains(q) || breedEn.contains(q) ||
+                               cage.contains(q) || 
+                               status.contains(q) || statusEn.contains(q) ||
+                               cond.contains(q) || condEn.contains(q);
+                    })
+                    .collect(Collectors.toList()));
+            }
+        });
+    }
+
+    private JLabel createFormLabel(String text) {
+        JLabel l = new JLabel(text);
+        l.setForeground(Color.WHITE);
+        l.setFont(new Font("Segoe UI", Font.BOLD, 12));
+        return l;
     }
 
     private void applyTheme() {
         setBackground(ThemeManager.LAVENDER);
-        
         lblTitle.setFont(ThemeManager.FONT_WELCOME);
         lblTitle.setForeground(ThemeManager.WHITE);
 
-        styleBtn(btnTambah, ThemeManager.STAT_GREEN, Color.WHITE);
-        styleBtn(btnEdit, ThemeManager.STAT_YELLOW, Color.BLACK);
-        styleBtn(btnHapus, ThemeManager.STAT_RED, Color.WHITE);
-        
-        table.setRowHeight(30);
-        table.getTableHeader().setFont(ThemeManager.FONT_BOLD_14);
+        styleBtn(btnUpdate, ThemeManager.STAT_RED, Color.WHITE);
+        styleBtn(btnInsert, ThemeManager.STAT_YELLOW, Color.BLACK);
+        styleBtn(btnSave, ThemeManager.STAT_GREEN, Color.WHITE);
     }
 
     private void styleBtn(JButton b, Color bg, Color fg) {
         b.setBackground(bg);
         b.setForeground(fg);
-        b.setFont(ThemeManager.FONT_BOLD_14);
+        b.setFont(new Font("Segoe UI", Font.BOLD, 13));
         b.setBorderPainted(false);
         b.setFocusPainted(false);
+        b.setCursor(new Cursor(Cursor.HAND_CURSOR));
+    }
+
+    private void styleCardBtn(JButton b, Color bg, Color fg) {
+        b.setBackground(bg);
+        b.setForeground(fg);
+        b.setFont(new Font("Segoe UI", Font.BOLD, 12));
+        b.setFocusPainted(false);
+        b.setBorderPainted(false);
         b.setCursor(new Cursor(Cursor.HAND_CURSOR));
     }
 }

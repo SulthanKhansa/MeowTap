@@ -13,13 +13,14 @@ public class PanelAiClinic extends JPanel {
     private JButton btnSend;
     private JScrollPane scrollChat;
     private JLabel lblTitle;
+    private boolean isEnglish = false;
 
     public PanelAiClinic() {
         initLayout();
         applyTheme();
     }
 
-    // Logic & Actions
+    // --- Logic & Actions ---
 
     private void sendMessage() {
         String msg = txtInput.getText();
@@ -30,7 +31,21 @@ public class PanelAiClinic extends JPanel {
         }
     }
 
-    // UI & Theme
+    // --- UI & Theme ---
+
+    public void setLanguage(boolean eng) {
+        this.isEnglish = eng;
+        if (isEnglish) {
+            lblTitle.setText("MeowTap AI Clinic");
+            btnSend.setText("Send");
+            txtInput.putClientProperty("JTextField.placeholderText", "Ask anything about your cat...");
+        } else {
+            lblTitle.setText("MeowTap AI Clinic");
+            btnSend.setText("Kirim");
+            txtInput.putClientProperty("JTextField.placeholderText", "Tanyakan apa saja tentang kucingmu...");
+        }
+        repaint();
+    }
 
     private void initLayout() {
         setLayout(new AbsoluteLayout());

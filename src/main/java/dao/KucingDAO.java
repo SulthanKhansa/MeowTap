@@ -93,15 +93,15 @@ public class KucingDAO implements DataAccessObject<Kucing> {
         return null; 
     }
 
-    // Menghitung jumlah kucing berdasarkan status makan.
+    // Menghitung jumlah kucing berdasarkan status makan (Case-Insensitive).
     public long countByStatus(String status) {
-        org.bson.conversions.Bson filter = com.mongodb.client.model.Filters.eq("statusMakan", status);
+        org.bson.conversions.Bson filter = com.mongodb.client.model.Filters.regex("statusMakan", "^" + status + "$", "i");
         return collection.countDocuments(filter);
     }
 
-    // Menghitung jumlah kucing berdasarkan kondisi kesehatan tertentu.
+    // Menghitung jumlah kucing berdasarkan kondisi kesehatan tertentu (Case-Insensitive).
     public long countByKondisi(String kondisi) {
-        org.bson.conversions.Bson filter = com.mongodb.client.model.Filters.eq("kondisiKesehatan", kondisi);
+        org.bson.conversions.Bson filter = com.mongodb.client.model.Filters.regex("kondisiKesehatan", "^" + kondisi + "$", "i");
         return collection.countDocuments(filter);
     }
 }

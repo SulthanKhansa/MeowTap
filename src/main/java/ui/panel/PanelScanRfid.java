@@ -12,29 +12,27 @@ import org.kordamp.ikonli.feather.Feather;
 
 public class PanelScanRfid extends JPanel {
 
-    private final Admin sessionAdmin;
     private JPanel pnlScanner;
     private JLabel lblTitle, lblStatus, lblSub;
     private JButton btnStart, btnSimulasi;
     private boolean isScanning = false;
+    private boolean isEnglish = false;
 
     public PanelScanRfid(Admin admin) {
-        this.sessionAdmin = admin;
         initLayout();
         applyTheme();
     }
 
-    // Logic & Actions
+    // --- Logic & Actions ---
 
     public void startScanning() {
         if (isScanning) return;
         isScanning = true;
         btnStart.setEnabled(false);
 
-        lblStatus.setText("Sedang mencari perangkat...");
+        lblStatus.setText(isEnglish ? "Searching for device..." : "Sedang mencari perangkat...");
         lblStatus.setForeground(ThemeManager.STAT_YELLOW);
         
-        // Jalankan scanner di background (Thread baru) agar layar tidak freeze (Not Responding)
         Thread scannerThread = new Thread(() -> {
             util.HardwareScanner scanner = new util.HardwareScanner();
             scanner.mulaiScanning(new util.HardwareScanner.ScanCallback() {
@@ -42,16 +40,14 @@ public class PanelScanRfid extends JPanel {
                 @Override
                 public void onScanSuccess(model.Kucing kucing) {
                     SwingUtilities.invokeLater(() -> {
-                        lblStatus.setText("Terdeteksi: " + kucing.getNama());
+                        lblStatus.setText((isEnglish ? "Detected: " : "Terdeteksi: ") + kucing.getNama());
                         lblStatus.setForeground(ThemeManager.STAT_GREEN);
-                        lblSub.setText("Status: " + kucing.getStatusMakan() + " | Kandang: " + kucing.getKandang());
+                        lblSub.setText((isEnglish ? "Status: " : "Status: ") + trans(kucing.getStatusMakan()) + " | " + (isEnglish ? "Cage: " : "Kandang: ") + kucing.getKandang());
                         
-                        // Popup Berhasil
-                        JOptionPane.showMessageDialog(PanelScanRfid.this, 
-                            "Scan RFID berhasil.\nSilahkan klik 'OK' untuk melihat data anabul.", 
-                            "Scan Berhasil", JOptionPane.INFORMATION_MESSAGE);
+                        String msg = isEnglish ? "RFID Scan successful.\nClick 'OK' to view anabul data." : "Scan RFID berhasil.\nSilahkan klik 'OK' untuk melihat data anabul.";
+                        String title = isEnglish ? "Scan Success" : "Scan Berhasil";
+                        JOptionPane.showMessageDialog(PanelScanRfid.this, msg, title, JOptionPane.INFORMATION_MESSAGE);
                         
-                        // Buka Dialog Konfirmasi/Edit Data
                         openDetailDialog(kucing);
                         
                         isScanning = false;
@@ -62,14 +58,13 @@ public class PanelScanRfid extends JPanel {
                 @Override
                 public void onScanNotFound(String rawId) {
                     SwingUtilities.invokeLater(() -> {
-                        lblStatus.setText("Anabul Tidak Dikenal!");
+                        lblStatus.setText(isEnglish ? "Unknown Anabul!" : "Anabul Tidak Dikenal!");
                         lblStatus.setForeground(ThemeManager.STAT_RED);
-                        lblSub.setText("ID Kalung: " + rawId + " belum terdaftar di database.");
+                        lblSub.setText((isEnglish ? "Necklace ID: " : "ID Kalung: ") + rawId + (isEnglish ? " is not registered." : " belum terdaftar di database."));
                         
-                        // Popup Gagal
-                        JOptionPane.showMessageDialog(PanelScanRfid.this, 
-                            "Mohon maaf proses scan gagal, silahkan scan ulang", 
-                            "Scan Gagal", JOptionPane.ERROR_MESSAGE);
+                        String msg = isEnglish ? "Scan failed, please try again." : "Mohon maaf proses scan gagal, silahkan scan ulang";
+                        String title = isEnglish ? "Scan Failed" : "Scan Gagal";
+                        JOptionPane.showMessageDialog(PanelScanRfid.this, msg, title, JOptionPane.ERROR_MESSAGE);
                         
                         isScanning = false;
                         if (btnStart != null) btnStart.setEnabled(true);
@@ -89,12 +84,76 @@ public class PanelScanRfid extends JPanel {
             });
         });
         
-        // Jadikan daemon agar thread otomatis mati kalau aplikasi diclose
         scannerThread.setDaemon(true); 
         scannerThread.start();
     }
 
-    // UI & Theme
+    private void simulasiScan() {
+        String prompt = isEnglish ? "Enter simulated RFID ID:" : "Masukkan ID RFID simulasi:";
+        String fakeId = JOptionPane.showInputDialog(this, prompt);
+        if (fakeId != null && !fakeId.trim().isEmpty()) {
+            dao.KucingDAO dao = new dao.KucingDAO();
+            model.Kucing k = dao.findById(fakeId.trim());
+            if (k != null) {
+                lblStatus.setText((isEnglish ? "Detected: " : "Terdeteksi: ") + k.getNama());
+                lblStatus.setForeground(ThemeManager.STAT_GREEN);
+                lblSub.setText((isEnglish ? "Status: " : "Status: ") + trans(k.getStatusMakan()) + " | " + (isEnglish ? "Cage: " : "Kandang: ") + k.getKandang());
+                
+                String msg = isEnglish ? "RFID Scan successful.\nClick 'OK' to view anabul data." : "Scan RFID berhasil.\nSilahkan klik 'OK' untuk melihat data anabul.";
+                String title = isEnglish ? "Scan Success" : "Scan Berhasil";
+                JOptionPane.showMessageDialog(this, msg, title, JOptionPane.INFORMATION_MESSAGE);
+                
+                openDetailDialog(k);
+            } else {
+                lblStatus.setText(isEnglish ? "Unknown Anabul!" : "Anabul Tidak Dikenal!");
+                lblStatus.setForeground(ThemeManager.STAT_RED);
+                lblSub.setText((isEnglish ? "Necklace ID: " : "ID Kalung: ") + fakeId + (isEnglish ? " is not registered." : " belum terdaftar di database."));
+                
+                String msg = isEnglish ? "Scan failed, please try again." : "Mohon maaf proses scan gagal, silahkan scan ulang";
+                String title = isEnglish ? "Scan Failed" : "Scan Gagal";
+                JOptionPane.showMessageDialog(this, msg, title, JOptionPane.ERROR_MESSAGE);
+            }
+        }
+    }
+
+    private void openDetailDialog(model.Kucing kucing) {
+        Frame parent = (Frame) SwingUtilities.getWindowAncestor(this);
+        DialogAnabul dialog = new DialogAnabul(parent, DialogAnabul.Mode.EDIT);
+        dialog.setLanguage(isEnglish);
+        dialog.prepareData(kucing);
+        dialog.setVisible(true);
+    }
+
+    private String trans(String val) {
+        if (val == null) return "-";
+        if (!isEnglish) return val;
+        String v = val.trim().toLowerCase();
+        return switch (v) {
+            case "sudah makan" -> "Fed";
+            case "belum makan" -> "Not Fed";
+            default -> val;
+        };
+    }
+
+    // --- UI & Theme ---
+
+    public void setLanguage(boolean eng) {
+        this.isEnglish = eng;
+        if (isEnglish) {
+            lblTitle.setText("RFID Scanning System");
+            if (!isScanning) lblStatus.setText("Scanner Ready");
+            lblSub.setText("Please place the anabul's RFID tag on the reader");
+            btnStart.setText("START SCAN");
+            btnSimulasi.setText("Simulate Scan");
+        } else {
+            lblTitle.setText("Sistem Pemindaian RFID");
+            if (!isScanning) lblStatus.setText("Scanner siap");
+            lblSub.setText("Silakan tempelkan kalung RFID anabul ke Reader");
+            btnStart.setText("MULAI SCAN");
+            btnSimulasi.setText("Simulasi Scan");
+        }
+        repaint();
+    }
 
     private void initLayout() {
         setLayout(new AbsoluteLayout());
@@ -102,7 +161,7 @@ public class PanelScanRfid extends JPanel {
         lblTitle = new JLabel("Sistem Pemindaian RFID", SwingConstants.CENTER);
         add(lblTitle, new AbsoluteConstraints(0, 50, 1000, -1));
 
-        JPanel pnlScanner = new JPanel(new GridBagLayout());
+        pnlScanner = new JPanel(new GridBagLayout());
         pnlScanner.setBackground(new Color(18, 27, 59));
         
         FontIcon iconScan = FontIcon.of(Feather.MAXIMIZE, 120, Color.WHITE);
@@ -135,40 +194,6 @@ public class PanelScanRfid extends JPanel {
         btnSimulasi = new JButton("Simulasi Scan");
         btnSimulasi.addActionListener(e -> simulasiScan());
         add(btnSimulasi, new AbsoluteConstraints(400, 635, 200, 30));
-    }
-
-    private void simulasiScan() {
-        String fakeId = JOptionPane.showInputDialog(this, "Masukkan ID RFID simulasi:");
-        if (fakeId != null && !fakeId.trim().isEmpty()) {
-            dao.KucingDAO dao = new dao.KucingDAO();
-            model.Kucing k = dao.findById(fakeId.trim());
-            if (k != null) {
-                lblStatus.setText("Terdeteksi: " + k.getNama());
-                lblStatus.setForeground(ThemeManager.STAT_GREEN);
-                lblSub.setText("Status: " + k.getStatusMakan() + " | Kandang: " + k.getKandang());
-                
-                JOptionPane.showMessageDialog(this, 
-                    "Scan RFID berhasil.\nSilahkan klik 'OK' untuk melihat data anabul.", 
-                    "Scan Berhasil", JOptionPane.INFORMATION_MESSAGE);
-                
-                openDetailDialog(k);
-            } else {
-                lblStatus.setText("Anabul Tidak Dikenal!");
-                lblStatus.setForeground(ThemeManager.STAT_RED);
-                lblSub.setText("ID Kalung: " + fakeId + " belum terdaftar di database.");
-                
-                JOptionPane.showMessageDialog(this, 
-                    "Mohon maaf proses scan gagal, silahkan scan ulang", 
-                    "Scan Gagal", JOptionPane.ERROR_MESSAGE);
-            }
-        }
-    }
-
-    private void openDetailDialog(model.Kucing kucing) {
-        Frame parent = (Frame) SwingUtilities.getWindowAncestor(this);
-        DialogAnabul dialog = new DialogAnabul(parent, DialogAnabul.Mode.EDIT);
-        dialog.prepareData(kucing);
-        dialog.setVisible(true);
     }
 
     private void applyTheme() {
