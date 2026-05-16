@@ -25,10 +25,11 @@ public class MainDashboard extends JFrame {
     private boolean isEnglish = false;
 
     public MainDashboard(Admin admin) {
-        this.sessionAdmin = admin;
-        initCustomComponents();
-        applyTheme();
-    }
+    this.sessionAdmin = admin;
+    initCustomComponents();
+    applyTheme();
+    switchPanel("cardBeranda");
+}
 
     // --- Logic & Actions ---
 
@@ -61,13 +62,33 @@ public class MainDashboard extends JFrame {
     }
 
     public void switchPanel(String cardName) {
-        cardLayout.show(panelKonten, cardName);
-        if (cardName.equals("cardBeranda")) {
-            pnlBeranda.refreshStats();
-        } else if (cardName.equals("cardData")) {
-            pnlData.loadData();
-        }
+
+    cardLayout.show(panelKonten, cardName);
+
+    // reset warna semua tombol
+    btnNavBeranda.setBackground(ThemeManager.NAVY);
+    btnNavScan.setBackground(ThemeManager.NAVY);
+    btnNavData.setBackground(ThemeManager.NAVY);
+    btnNavAI.setBackground(ThemeManager.NAVY);
+
+    // warna active
+    Color activeColor = ThemeManager.LAVENDER;
+
+    if (cardName.equals("cardBeranda")) {
+        btnNavBeranda.setBackground(activeColor);
+        pnlBeranda.refreshStats();
+
+    } else if (cardName.equals("cardScan")) {
+        btnNavScan.setBackground(activeColor);
+
+    } else if (cardName.equals("cardData")) {
+        btnNavData.setBackground(activeColor);
+        pnlData.loadData();
+
+    } else if (cardName.equals("cardAI")) {
+        btnNavAI.setBackground(activeColor);
     }
+}
 
     // --- UI & Theme ---
 
