@@ -11,72 +11,81 @@ import org.kordamp.ikonli.feather.Feather;
 
 public class PanelInformasiAkun extends JPanel {
 
-    private JLabel lblTitle;
+    private final Admin admin;
+    private JLabel lblTitle, lblAdmin, lblUsernameInfo, lblNamaInfo;
     private JPanel cardUsername, cardNama, pnlAdmin;
-    private JLabel lblAdmin;
+    private boolean isEnglish = false;
 
     public PanelInformasiAkun(Admin admin) {
+        this.admin = admin;
+        initLayout();
+        applyTheme();
+    }
 
+    // --- Logic & Actions ---
+
+    public void setLanguage(boolean eng) {
+        this.isEnglish = eng;
+        if (isEnglish) {
+            lblTitle.setText("Account Information");
+            lblUsernameInfo.setText("Username : " + admin.getUsername());
+            lblNamaInfo.setText("Full Name : " + admin.getNamaLengkap());
+        } else {
+            lblTitle.setText("Informasi Akun");
+            lblUsernameInfo.setText("Username : " + admin.getUsername());
+            lblNamaInfo.setText("Nama Lengkap : " + admin.getNamaLengkap());
+        }
+        repaint();
+    }
+
+    // --- UI & Theme ---
+
+    private void initLayout() {
         setLayout(new AbsoluteLayout());
-        setBackground(ThemeManager.LAVENDER);
 
-        // Panel admin atas
+        // Panel admin atas (Header)
         pnlAdmin = new JPanel(new BorderLayout());
-        pnlAdmin.setBackground(ThemeManager.NAVY);
-
         lblAdmin = new JLabel(admin.getNamaLengkap(), SwingConstants.CENTER);
-        lblAdmin.setForeground(Color.WHITE);
-        lblAdmin.setFont(new Font("Segoe UI", Font.PLAIN, 18));
         lblAdmin.setIcon(FontIcon.of(Feather.USER, 20, Color.WHITE));
         lblAdmin.setIconTextGap(10);
-
         pnlAdmin.add(lblAdmin, BorderLayout.CENTER);
-
         add(pnlAdmin, new AbsoluteConstraints(600, 20, 240, 55));
 
-        // Judul
+        // Judul Halaman
         lblTitle = new JLabel("Informasi Akun");
-        lblTitle.setFont(new Font("Segoe UI", Font.BOLD, 28));
-        lblTitle.setForeground(Color.WHITE);
-
-        add(lblTitle, new AbsoluteConstraints(420, 120, -1, -1));
+        add(lblTitle, new AbsoluteConstraints(380, 120, -1, -1));
 
         // Card Username
-        cardUsername = new JPanel();
-        cardUsername.setLayout(new AbsoluteLayout());
-        cardUsername.setBackground(new Color(230,230,230));
-
-        add(cardUsername, new AbsoluteConstraints(320, 210, 500, 70));
-
-        JLabel lblUsername = new JLabel(
-            "Username : " + admin.getUsername()
-        );
-
-        lblUsername.setFont(new Font("Segoe UI", Font.PLAIN, 18));
-        lblUsername.setForeground(Color.BLACK);
-
-        cardUsername.add(
-            lblUsername,
-            new AbsoluteConstraints(20, 20, 450, 30)
-        );
+        cardUsername = new JPanel(new AbsoluteLayout());
+        lblUsernameInfo = new JLabel("Username : " + admin.getUsername());
+        cardUsername.add(lblUsernameInfo, new AbsoluteConstraints(20, 20, 450, 30));
+        add(cardUsername, new AbsoluteConstraints(250, 210, 500, 70));
 
         // Card Nama
-        cardNama = new JPanel();
-        cardNama.setLayout(new AbsoluteLayout());
-        cardNama.setBackground(new Color(230,230,230));
+        cardNama = new JPanel(new AbsoluteLayout());
+        lblNamaInfo = new JLabel("Nama Lengkap : " + admin.getNamaLengkap());
+        cardNama.add(lblNamaInfo, new AbsoluteConstraints(20, 20, 450, 30));
+        add(cardNama, new AbsoluteConstraints(250, 320, 500, 70));
+    }
 
-        add(cardNama, new AbsoluteConstraints(320, 320, 500, 70));
+    private void applyTheme() {
+        setBackground(ThemeManager.LAVENDER);
 
-        JLabel lblNama = new JLabel(
-            "Nama Lengkap : " + admin.getNamaLengkap()
-        );
+        pnlAdmin.setBackground(ThemeManager.NAVY);
+        lblAdmin.setForeground(Color.WHITE);
+        lblAdmin.setFont(new Font("Segoe UI", Font.PLAIN, 18));
 
-        lblNama.setFont(new Font("Segoe UI", Font.PLAIN, 18));
-        lblNama.setForeground(Color.BLACK);
+        lblTitle.setFont(ThemeManager.FONT_WELCOME); // Gunakan font standar dashboard
+        lblTitle.setForeground(ThemeManager.WHITE);
 
-        cardNama.add(
-            lblNama,
-            new AbsoluteConstraints(20, 20, 450, 30)
-        );
+        // Styling Cards
+        styleCard(cardUsername, lblUsernameInfo);
+        styleCard(cardNama, lblNamaInfo);
+    }
+
+    private void styleCard(JPanel card, JLabel label) {
+        card.setBackground(ThemeManager.DARK_BLUE); // Ubah ke Navy/Dark agar selaras dengan dashboard
+        label.setFont(new Font("Segoe UI", Font.BOLD, 18));
+        label.setForeground(Color.WHITE);
     }
 }

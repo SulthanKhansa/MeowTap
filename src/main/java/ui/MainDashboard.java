@@ -52,6 +52,7 @@ public class MainDashboard extends JFrame {
         pnlScan.setLanguage(eng);
         pnlData.setLanguage(eng);
         pnlAi.setLanguage(eng);
+        pnlAkun.setLanguage(eng);
     }
 
     private void prosesLogout() {
