@@ -9,7 +9,7 @@ import model.Kucing;
 import org.bson.Document;
 import util.DatabaseConnection;
 
-// DAO untuk mengelola data Kucing di MongoDB.
+// DAO untuk mengelola data Kucing di MongoDB beserta Data Gambar.
  
 public class KucingDAO implements DataAccessObject<Kucing> {
 
@@ -28,7 +28,8 @@ public class KucingDAO implements DataAccessObject<Kucing> {
                 .append("umur", data.getUmur())
                 .append("kandang", data.getKandang())
                 .append("statusMakan", data.getStatusMakan())
-                .append("kondisiKesehatan", data.getKondisiKesehatan());
+                .append("kondisiKesehatan", data.getKondisiKesehatan())
+                .append("gambarPath", data.getGambarPath()); // <--- TAMBAHAN: Simpan path gambar ke MongoDB
         
         collection.insertOne(doc);
         System.out.println("Data " + data.getNama() + " berhasil ditambahkan.");
@@ -40,6 +41,8 @@ public class KucingDAO implements DataAccessObject<Kucing> {
         try (MongoCursor<Document> cursor = collection.find().iterator()) {
             while (cursor.hasNext()) {
                 Document doc = cursor.next();
+                
+                // Membuat objek kucing dan membaca field gambarPath
                 Kucing k = new Kucing(
                         doc.getString("idRfid"),
                         doc.getString("nama"),
@@ -49,6 +52,9 @@ public class KucingDAO implements DataAccessObject<Kucing> {
                         doc.getString("statusMakan"),
                         doc.getString("kondisiKesehatan")
                 );
+                // TAMBAHAN: Set path gambar dari database (gunakan default string kosong jika null)
+                k.setGambarPath(doc.getString("gambarPath") != null ? doc.getString("gambarPath") : "");
+                
                 listKucing.add(k);
             }
         }
@@ -64,7 +70,8 @@ public class KucingDAO implements DataAccessObject<Kucing> {
             com.mongodb.client.model.Updates.set("umur", data.getUmur()),
             com.mongodb.client.model.Updates.set("kandang", data.getKandang()),
             com.mongodb.client.model.Updates.set("statusMakan", data.getStatusMakan()),
-            com.mongodb.client.model.Updates.set("kondisiKesehatan", data.getKondisiKesehatan())
+            com.mongodb.client.model.Updates.set("kondisiKesehatan", data.getKondisiKesehatan()),
+            com.mongodb.client.model.Updates.set("gambarPath", data.getGambarPath()) // <--- TAMBAHAN: Update path gambar
         );
         collection.updateOne(filter, updateOperation);
     }
@@ -80,7 +87,7 @@ public class KucingDAO implements DataAccessObject<Kucing> {
         org.bson.conversions.Bson filter = com.mongodb.client.model.Filters.eq("idRfid", id);
         Document doc = collection.find(filter).first();
         if (doc != null) {
-            return new Kucing(
+            Kucing k = new Kucing(
                 doc.getString("idRfid"),
                 doc.getString("nama"),
                 doc.getString("ras"),
@@ -89,6 +96,9 @@ public class KucingDAO implements DataAccessObject<Kucing> {
                 doc.getString("statusMakan"),
                 doc.getString("kondisiKesehatan")
             );
+            // TAMBAHAN: Set path gambar saat pencarian spesifik by ID
+            k.setGambarPath(doc.getString("gambarPath") != null ? doc.getString("gambarPath") : "");
+            return k;
         }
         return null; 
     }

@@ -17,10 +17,10 @@ public final class PanelDataAnabul extends JPanel {
 
     private JPanel cardContainer, pnlForm;
     private JScrollPane scrollPane;
-    private JTextField txtSearch, txtId, txtNama, txtUmur;
+    private JTextField txtSearch, txtId, txtNama, txtUmur, txtGambarPath; 
     private JComboBox<String> cbRas, cbKandang, cbStatus, cbKondisi;
-    private JLabel lblTitle;
-    private JButton btnUpdate, btnSave;
+    private JLabel lblTitle, lblLGambar; 
+    private JButton btnUpdate, btnSave, btnBrowseGambar; 
     private JLabel lblLID, lblLNama, lblLUmur, lblLRas, lblLKandang, lblLStatus, lblLKondisi;
     private List<Kucing> allKucing;
     private boolean isEnglish = false;
@@ -77,6 +77,8 @@ public final class PanelDataAnabul extends JPanel {
             lblLKandang.setText("Cage:");
             lblLStatus.setText("Status:");
             lblLKondisi.setText("Condition:");
+            lblLGambar.setText("Photo:");
+            btnBrowseGambar.setText("Browse...");
             cbStatus.setModel(new DefaultComboBoxModel<>(new String[]{"Fed", "Not Fed"}));
             cbKondisi.setModel(new DefaultComboBoxModel<>(new String[]{"Healthy", "Sick", "Deceased"}));
         } else {
@@ -91,6 +93,8 @@ public final class PanelDataAnabul extends JPanel {
             lblLKandang.setText("Kandang:");
             lblLStatus.setText("Status:");
             lblLKondisi.setText("Kondisi:");
+            lblLGambar.setText("Foto Anabul:");
+            btnBrowseGambar.setText("...");
             cbStatus.setModel(new DefaultComboBoxModel<>(new String[]{"Sudah makan", "Belum makan"}));
             cbKondisi.setModel(new DefaultComboBoxModel<>(new String[]{"Sehat", "Sakit", "Meninggal"}));
         }
@@ -136,12 +140,14 @@ public final class PanelDataAnabul extends JPanel {
         cbKandang.setSelectedItem(k.getKandang());
         cbStatus.setSelectedItem(k.getStatusMakan());
         cbKondisi.setSelectedItem(k.getKondisiKesehatan());
+        txtGambarPath.setText(k.getGambarPath()); 
     }
 
     private void clearForm() {
         txtId.setText("");
         txtNama.setText("");
         txtUmur.setText("");
+        txtGambarPath.setText(""); 
         cbRas.setSelectedIndex(0);
         cbKandang.setSelectedIndex(0);
         cbStatus.setSelectedIndex(0);
@@ -154,7 +160,8 @@ public final class PanelDataAnabul extends JPanel {
                 txtId.getText(), txtNama.getText(), cbRas.getSelectedItem().toString(),
                 Integer.parseInt(txtUmur.getText()), cbKandang.getSelectedItem().toString(),
                 reverseTrans(cbStatus.getSelectedItem().toString()),
-                reverseTrans(cbKondisi.getSelectedItem().toString())
+                reverseTrans(cbKondisi.getSelectedItem().toString()),
+                txtGambarPath.getText() 
             );
             KucingDAO dao = new KucingDAO();
             if (isInsert) dao.insert(k);
@@ -175,61 +182,99 @@ public final class PanelDataAnabul extends JPanel {
         setLayout(new AbsoluteLayout());
         lblTitle = new JLabel("Direktori Anabul");
         add(lblTitle, new AbsoluteConstraints(20, 15, -1, -1));
+        
         pnlForm = new JPanel(new AbsoluteLayout());
         pnlForm.setBackground(ThemeManager.NAVY);
         add(pnlForm, new AbsoluteConstraints(20, 55, 960, 195));
+        
         txtSearch = new JTextField();
         txtSearch.putClientProperty("JTextField.placeholderText", "Cari nama atau ID...");
         txtSearch.setBorder(new EmptyBorder(0, 10, 0, 40));
         pnlForm.add(txtSearch, new AbsoluteConstraints(20, 15, 520, 40));
+        
         JLabel lblSearchIcon = new JLabel(FontIcon.of(Feather.SEARCH, 18, Color.GRAY));
         pnlForm.add(lblSearchIcon, new AbsoluteConstraints(505, 25, -1, -1));
+        
         btnSave = new JButton("REFRESH");
         btnSave.addActionListener(e -> clearForm());
         pnlForm.add(btnSave, new AbsoluteConstraints(560, 15, 160, 40));
+        
         btnUpdate = new JButton("UPDATE");
         btnUpdate.addActionListener(e -> executeAction(false));
         pnlForm.add(btnUpdate, new AbsoluteConstraints(740, 15, 200, 40));
+        
+        // KOLOM 1
         lblLID = createFormLabel("ID:");
         pnlForm.add(lblLID, new AbsoluteConstraints(20, 65, -1, -1));
         txtId = new JTextField();
-        pnlForm.add(txtId, new AbsoluteConstraints(20, 85, 290, 38));
-        lblLNama = createFormLabel("Nama:");
-        pnlForm.add(lblLNama, new AbsoluteConstraints(325, 65, -1, -1));
-        txtNama = new JTextField();
-        pnlForm.add(txtNama, new AbsoluteConstraints(325, 85, 300, 38));
-        lblLUmur = createFormLabel("Umur (bulan):");
-        pnlForm.add(lblLUmur, new AbsoluteConstraints(640, 65, -1, -1));
-        txtUmur = new JTextField();
-        pnlForm.add(txtUmur, new AbsoluteConstraints(640, 85, 300, 38));
+        pnlForm.add(txtId, new AbsoluteConstraints(20, 85, 215, 38));
+        
         lblLRas = createFormLabel("Ras:");
         pnlForm.add(lblLRas, new AbsoluteConstraints(20, 130, -1, -1));
         cbRas = new JComboBox<>(new String[]{"Persia", "Anggora", "Siam", "Kampung", "British"});
         pnlForm.add(cbRas, new AbsoluteConstraints(20, 150, 215, 35));
+        
+        // KOLOM 2
+        lblLNama = createFormLabel("Nama:");
+        pnlForm.add(lblLNama, new AbsoluteConstraints(255, 65, -1, -1));
+        txtNama = new JTextField();
+        pnlForm.add(txtNama, new AbsoluteConstraints(255, 85, 215, 38));
+        
         lblLKandang = createFormLabel("Kandang:");
-        pnlForm.add(lblLKandang, new AbsoluteConstraints(250, 130, -1, -1));
+        pnlForm.add(lblLKandang, new AbsoluteConstraints(255, 130, -1, -1));
         cbKandang = new JComboBox<>(new String[]{"A1", "A2", "B1", "B2", "B3", "C1"});
-        pnlForm.add(cbKandang, new AbsoluteConstraints(250, 150, 215, 35));
+        pnlForm.add(cbKandang, new AbsoluteConstraints(255, 150, 215, 35));
+        
+        // KOLOM 3
+        lblLUmur = createFormLabel("Umur (bulan):");
+        pnlForm.add(lblLUmur, new AbsoluteConstraints(490, 65, -1, -1));
+        txtUmur = new JTextField();
+        pnlForm.add(txtUmur, new AbsoluteConstraints(490, 85, 215, 38));
+        
         lblLStatus = createFormLabel("Status:");
-        pnlForm.add(lblLStatus, new AbsoluteConstraints(480, 130, -1, -1));
+        pnlForm.add(lblLStatus, new AbsoluteConstraints(490, 130, -1, -1));
         cbStatus = new JComboBox<>(new String[]{"Sudah makan", "Belum makan"});
-        pnlForm.add(cbStatus, new AbsoluteConstraints(480, 150, 215, 35));
+        pnlForm.add(cbStatus, new AbsoluteConstraints(490, 150, 215, 35));
+        
+        // KOLOM 4
         lblLKondisi = createFormLabel("Kondisi:");
-        pnlForm.add(lblLKondisi, new AbsoluteConstraints(710, 130, -1, -1));
+        pnlForm.add(lblLKondisi, new AbsoluteConstraints(725, 65, -1, -1));
         cbKondisi = new JComboBox<>(new String[]{"Sehat", "Sakit", "Meninggal"});
-        pnlForm.add(cbKondisi, new AbsoluteConstraints(710, 150, 230, 35));
+        pnlForm.add(cbKondisi, new AbsoluteConstraints(725, 85, 215, 35));
+        
+        lblLGambar = createFormLabel("Foto Anabul:");
+        pnlForm.add(lblLGambar, new AbsoluteConstraints(725, 130, -1, -1));
+        
+        txtGambarPath = new JTextField();
+        txtGambarPath.setEditable(false);
+        pnlForm.add(txtGambarPath, new AbsoluteConstraints(725, 150, 145, 35));
+        
+        btnBrowseGambar = new JButton("...");
+        btnBrowseGambar.addActionListener(e -> {
+            JFileChooser chooser = new JFileChooser();
+            int res = chooser.showOpenDialog(this);
+            if (res == JFileChooser.APPROVE_OPTION) {
+                txtGambarPath.setText(chooser.getSelectedFile().getAbsolutePath());
+            }
+        });
+        pnlForm.add(btnBrowseGambar, new AbsoluteConstraints(875, 150, 65, 35));
+        
+        // CARD CONTAINER & SCROLLPANE
         cardContainer = new JPanel(new GridLayout(0, 3, 25, 25));
         cardContainer.setOpaque(false);
         cardContainer.setBorder(new EmptyBorder(30, 25, 30, 25));
+        
         JPanel wrapper = new JPanel(new BorderLayout());
         wrapper.setOpaque(false);
         wrapper.add(cardContainer, BorderLayout.NORTH);
+        
         scrollPane = new JScrollPane(wrapper);
         scrollPane.setBorder(null);
         scrollPane.setOpaque(false);
         scrollPane.getViewport().setOpaque(false);
         scrollPane.getVerticalScrollBar().setUnitIncrement(16);
         add(scrollPane, new AbsoluteConstraints(0, 250, 1000, 450));
+        
         txtSearch.addKeyListener(new java.awt.event.KeyAdapter() {
             @Override
             public void keyReleased(java.awt.event.KeyEvent evt) {
@@ -252,6 +297,7 @@ public final class PanelDataAnabul extends JPanel {
         });
     }
 
+    // --- TAMBAHAN HELPER METHOD YANG HILANG ---
     private String fmt(String val) {
         return (val == null || val.equalsIgnoreCase("null") || val.isEmpty()) ? "-" : val;
     }
@@ -260,37 +306,66 @@ public final class PanelDataAnabul extends JPanel {
         JPanel card = new JPanel(new AbsoluteLayout());
         card.setPreferredSize(new Dimension(300, 240)); 
         card.setBackground(ThemeManager.NAVY);
+
+        JLabel lblFoto = new JLabel();
+        lblFoto.setHorizontalAlignment(SwingConstants.CENTER);
+        lblFoto.setBorder(BorderFactory.createLineBorder(new Color(80, 80, 100), 1));
+        
+        String imgPath = (k.getGambarPath() != null && !k.getGambarPath().isEmpty()) ? k.getGambarPath() : "";
+        try {
+            if (!imgPath.isEmpty()) {
+                ImageIcon icon = new ImageIcon(imgPath);
+                Image scaledImg = icon.getImage().getScaledInstance(80, 100, Image.SCALE_SMOOTH);
+                lblFoto.setIcon(new ImageIcon(scaledImg));
+            } else {
+                lblFoto.setText("No Image");
+                lblFoto.setForeground(Color.LIGHT_GRAY);
+            }
+        } catch (Exception e) {
+            lblFoto.setText("Error");
+            lblFoto.setForeground(Color.LIGHT_GRAY);
+        }
+        card.add(lblFoto, new AbsoluteConstraints(15, 20, 80, 100));
+
         int y = 20;
         String[][] data;
         if (isEnglish) {
             data = new String[][]{{"ID", fmt(k.getIdRfid())}, {"Name", fmt(k.getNama())}, {"Breed", trans(k.getRas())},
-                {"Age", k.getUmur() + " month"}, {"Cage", fmt(k.getKandang())}, {"Status", trans(k.getStatusMakan())}, {"Condition", trans(k.getKondisiKesehatan())}};
+                {"Age", k.getUmur() + " mo"}, {"Cage", fmt(k.getKandang())}};
         } else {
             data = new String[][]{{"ID", fmt(k.getIdRfid())}, {"Nama", fmt(k.getNama())}, {"Ras", fmt(k.getRas())},
-                {"Umur", k.getUmur() + " bulan"}, {"Kandang", fmt(k.getKandang())}, {"Status", fmt(k.getStatusMakan())}, {"Kondisi", fmt(k.getKondisiKesehatan())}};
+                {"Umur", k.getUmur() + " bln"}, {"Kandang", fmt(k.getKandang())}};
         }
+        
         for (String[] row : data) {
             JLabel lblKey = new JLabel(row[0]);
             lblKey.setForeground(new Color(200, 200, 200));
-            lblKey.setFont(new Font("Segoe UI", Font.BOLD, 13));
-            card.add(lblKey, new AbsoluteConstraints(25, y, 70, -1));
-            JLabel lblVal = new JLabel(":  " + row[1]);
+            lblKey.setFont(new Font("Segoe UI", Font.BOLD, 12));
+            card.add(lblKey, new AbsoluteConstraints(110, y, 55, -1));
+            
+            JLabel lblVal = new JLabel(": " + row[1]);
             lblVal.setForeground(Color.WHITE);
-            lblVal.setFont(new Font("Segoe UI", Font.PLAIN, 13));
-            card.add(lblVal, new AbsoluteConstraints(100, y, 180, -1));
-            y += 22;
+            lblVal.setFont(new Font("Segoe UI", Font.PLAIN, 12));
+            card.add(lblVal, new AbsoluteConstraints(165, y, 120, -1));
+            y += 20;
         }
+        
         JButton btnEdit = new JButton(isEnglish ? "EDIT" : "UBAH");
         JButton btnDelete = new JButton(isEnglish ? "DELETE" : "HAPUS");
         styleCardBtn(btnEdit, ThemeManager.STAT_YELLOW, Color.BLACK);
         styleCardBtn(btnDelete, ThemeManager.STAT_RED, Color.WHITE);
+        
         btnEdit.addActionListener(e -> fillForm(k));
         btnDelete.addActionListener(e -> {
             String msg = isEnglish ? "Delete " + k.getNama() + " data?" : "Hapus data " + k.getNama() + "?";
             String title = isEnglish ? "Confirm" : "Hapus";
             int conf = JOptionPane.showConfirmDialog(this, msg, title, JOptionPane.YES_NO_OPTION);
-            if (conf == JOptionPane.YES_OPTION) { new KucingDAO().delete(k.getIdRfid()); loadData(); }
+            if (conf == JOptionPane.YES_OPTION) { 
+                new KucingDAO().delete(k.getIdRfid()); 
+                loadData(); 
+            }
         });
+        
         card.add(btnEdit, new AbsoluteConstraints(25, 190, 125, 32));
         card.add(btnDelete, new AbsoluteConstraints(160, 190, 125, 32));
         return card;
