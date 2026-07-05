@@ -50,5 +50,23 @@
             <version>12.3.0</version>
         </dependency>
     </dependencies>
-    
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>exec-maven-plugin</artifactId>
+                <version>3.1.0</version>
+                <configuration>
+                    <mainClass>com.mycompany.meowtap.MeowTap</mainClass>
+                    <systemProperties>
+                        <systemProperty>
+                            <key>KEY</key>
+                            <value>RahasiaAES1234567</value>
+                        </systemProperty>
+                    </systemProperties>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
 </project>
