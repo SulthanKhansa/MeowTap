@@ -19,6 +19,7 @@ public class PanelBeranda extends JPanel implements I18nChangeListener {
     private KucingDAO dao;
     private JLabel lblClock, lblSMakan, lblBMakan, lblSakit, lblMeninggal;
     private JLabel lblSummary, lblScanner, lblPreview, lblAiPreview;
+    private JLabel lblStatFed, lblStatUnfed, lblStatSick, lblStatDead;
     private Thread clockThread;
 
     public PanelBeranda(Admin admin) {
@@ -56,10 +57,15 @@ public class PanelBeranda extends JPanel implements I18nChangeListener {
         lblSakit = new JLabel("0");
         lblMeninggal = new JLabel("0");
 
-        pnlStats.add(createStatBox("Sudah Makan", lblSMakan, ThemeManager.STAT_GREEN), new AbsoluteConstraints(20, 40, 150, 80));
-        pnlStats.add(createStatBox("Belum Makan", lblBMakan, ThemeManager.STAT_YELLOW), new AbsoluteConstraints(185, 40, 150, 80));
-        pnlStats.add(createStatBox("Sakit", lblSakit, ThemeManager.STAT_PINK), new AbsoluteConstraints(350, 40, 150, 80));
-        pnlStats.add(createStatBox("Meninggal", lblMeninggal, ThemeManager.STAT_RED), new AbsoluteConstraints(515, 40, 150, 80));
+        lblStatFed = new JLabel("Sudah Makan", SwingConstants.CENTER);
+        lblStatUnfed = new JLabel("Belum Makan", SwingConstants.CENTER);
+        lblStatSick = new JLabel("Sakit", SwingConstants.CENTER);
+        lblStatDead = new JLabel("Meninggal", SwingConstants.CENTER);
+
+        pnlStats.add(createStatBox(lblStatFed, lblSMakan, ThemeManager.STAT_GREEN), new AbsoluteConstraints(20, 40, 150, 80));
+        pnlStats.add(createStatBox(lblStatUnfed, lblBMakan, ThemeManager.STAT_YELLOW), new AbsoluteConstraints(185, 40, 150, 80));
+        pnlStats.add(createStatBox(lblStatSick, lblSakit, ThemeManager.STAT_PINK), new AbsoluteConstraints(350, 40, 150, 80));
+        pnlStats.add(createStatBox(lblStatDead, lblMeninggal, ThemeManager.STAT_RED), new AbsoluteConstraints(515, 40, 150, 80));
         add(pnlStats, new AbsoluteConstraints(30, 90, 680, 140));
 
         refreshStats();
@@ -104,14 +110,13 @@ public class PanelBeranda extends JPanel implements I18nChangeListener {
         lblMeninggal.setText(tewas);
     }
 
-    private JPanel createStatBox(String title, JLabel valLabel, Color bg) {
+    private JPanel createStatBox(JLabel titleLabel, JLabel valLabel, Color bg) {
         JPanel box = new JPanel(new GridLayout(2, 1));
         box.setBackground(bg);
-        JLabel t = new JLabel(title, SwingConstants.CENTER);
-        t.setForeground(Color.WHITE);
+        titleLabel.setForeground(Color.WHITE);
         valLabel.setForeground(Color.WHITE);
         valLabel.setFont(new Font("Segoe UI", Font.BOLD, 20));
-        box.add(t);
+        box.add(titleLabel);
         box.add(valLabel);
         return box;
     }
@@ -133,5 +138,9 @@ public class PanelBeranda extends JPanel implements I18nChangeListener {
         lblScanner.setText(I18nService.get("app.home.scanner"));
         lblPreview.setText(I18nService.get("app.home.preview"));
         lblAiPreview.setText(I18nService.get("app.home.ai"));
+        lblStatFed.setText(I18nService.get("app.home.fed"));
+        lblStatUnfed.setText(I18nService.get("app.home.unfed"));
+        lblStatSick.setText(I18nService.get("app.home.sick"));
+        lblStatDead.setText(I18nService.get("app.home.deceased"));
     }
 }

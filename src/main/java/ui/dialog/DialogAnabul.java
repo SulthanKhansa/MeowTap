@@ -37,29 +37,12 @@ public class DialogAnabul extends JDialog {
 
         addLabelInput(I18nService.get("app.dialog.idrfid"), 70, txtId = new JTextField());
         addLabelInput(I18nService.get("app.dialog.name"), 120, txtNama = new JTextField());
-        addLabelCombo(I18nService.get("app.dialog.breed"), 170, cbRas = new JComboBox<>(new String[]{
-            I18nService.get("app.dialog.breed.persia"),
-            I18nService.get("app.dialog.breed.anggora"),
-            I18nService.get("app.dialog.breed.kampung"),
-            I18nService.get("app.dialog.breed.siam")
-        }));
+        addLabelCombo(I18nService.get("app.dialog.breed"), 170, cbRas = new JComboBox<>(new String[]{"Persia", "Anggora", "Kampung", "Siam"}));
         addLabelInput(I18nService.get("app.dialog.age"), 220, txtUmur = new JTextField());
-        addLabelCombo(I18nService.get("app.dialog.cage"), 270, cbKandang = new JComboBox<>(new String[]{
-            I18nService.get("app.dialog.cage.a1"),
-            I18nService.get("app.dialog.cage.a2"),
-            I18nService.get("app.dialog.cage.b1"),
-            I18nService.get("app.dialog.cage.b2"),
-            I18nService.get("app.dialog.cage.c1")
-        }));
-        addLabelCombo(I18nService.get("app.dialog.feedstatus"), 320, cbStatusMakan = new JComboBox<>(new String[]{
-            I18nService.get("app.dialog.feedstatus.fed"),
-            I18nService.get("app.dialog.feedstatus.unfed")
-        }));
-        addLabelCombo(I18nService.get("app.dialog.health"), 370, cbKondisi = new JComboBox<>(new String[]{
-            I18nService.get("app.dialog.health.sehat"),
-            I18nService.get("app.dialog.health.sakit")
-        }));
-        addLabelCombo("Status", 420, cbStatus = new JComboBox<>(new String[]{"Sehat", "Sakit", "Sudah Makan", "Belum Makan"}));
+        addLabelCombo(I18nService.get("app.dialog.cage"), 270, cbKandang = new JComboBox<>(new String[]{"A1", "A2", "B1", "B2", "C1"}));
+        addLabelCombo(I18nService.get("app.dialog.feedstatus"), 320, cbStatusMakan = new JComboBox<>(new String[]{"Sudah Makan", "Belum Makan"}));
+        addLabelCombo(I18nService.get("app.dialog.health"), 370, cbKondisi = new JComboBox<>(new String[]{"Sehat", "Sakit"}));
+        addLabelCombo(I18nService.get("app.dialog.status"), 420, cbStatus = new JComboBox<>(new String[]{"Sehat", "Sakit", "Sudah Makan", "Belum Makan"}));
 
         btnAction = new JButton(I18nService.get("app.dialog.btn" + (currentMode == Mode.TAMBAH ? "add" : currentMode == Mode.EDIT ? "edit" : "delete")));
         btnAction.addActionListener(e -> executeAction());

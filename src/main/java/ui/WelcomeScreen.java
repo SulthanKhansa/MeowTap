@@ -20,7 +20,7 @@ public class WelcomeScreen extends JFrame {
 
     private void initCustomComponents() {
         setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
-        setTitle("MeowTap - " + I18nService.get("app.welcome.title"));
+        setTitle("MeowTap");
         setExtendedState(JFrame.MAXIMIZED_BOTH);
 
         mainPanel = new JPanel(new GridBagLayout());
