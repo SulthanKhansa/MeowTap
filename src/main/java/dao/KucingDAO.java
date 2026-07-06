@@ -28,7 +28,9 @@ public class KucingDAO implements DataAccessObject<Kucing> {
                 .append("ras", data.getRas())
                 .append("umur", data.getUmur())
                 .append("kandang", data.getKandang())
-                .append("statusKesehatan", data.getStatusKesehatan());
+                .append("statusKesehatan", data.getStatusKesehatan())
+                .append("statusMakan", data.getStatusMakan())
+                .append("kondisiKesehatan", data.getKondisiKesehatan());
         
         collection.insertOne(doc);
         System.out.println("Data " + data.getNama() + " berhasil ditambahkan.");
@@ -46,7 +48,9 @@ public class KucingDAO implements DataAccessObject<Kucing> {
                         doc.getString("ras"),
                         doc.getInteger("umur", 0),
                         doc.getString("kandang"),
-                        doc.getString("statusKesehatan")
+                        doc.getString("statusKesehatan"),
+                        doc.getString("statusMakan"),
+                        doc.getString("kondisiKesehatan")
                 );
                 listKucing.add(k);
             }
@@ -62,7 +66,9 @@ public class KucingDAO implements DataAccessObject<Kucing> {
             com.mongodb.client.model.Updates.set("ras", data.getRas()),
             com.mongodb.client.model.Updates.set("umur", data.getUmur()),
             com.mongodb.client.model.Updates.set("kandang", data.getKandang()),
-            com.mongodb.client.model.Updates.set("statusKesehatan", data.getStatusKesehatan())
+            com.mongodb.client.model.Updates.set("statusKesehatan", data.getStatusKesehatan()),
+            com.mongodb.client.model.Updates.set("statusMakan", data.getStatusMakan()),
+            com.mongodb.client.model.Updates.set("kondisiKesehatan", data.getKondisiKesehatan())
         );
         collection.updateOne(filter, updateOperation);
     }
@@ -84,7 +90,9 @@ public class KucingDAO implements DataAccessObject<Kucing> {
                 doc.getString("ras"),
                 doc.getInteger("umur", 0),
                 doc.getString("kandang"),
-                doc.getString("statusKesehatan")
+                doc.getString("statusKesehatan"),
+                doc.getString("statusMakan"),
+                doc.getString("kondisiKesehatan")
             );
         }
         return null; 
@@ -95,6 +103,22 @@ public class KucingDAO implements DataAccessObject<Kucing> {
      */
     public long countByStatus(String status) {
         org.bson.conversions.Bson filter = com.mongodb.client.model.Filters.eq("statusKesehatan", status);
+        return collection.countDocuments(filter);
+    }
+
+    /**
+     * Menghitung jumlah kucing berdasarkan kondisi kesehatan.
+     */
+    public long countByKondisi(String kondisi) {
+        org.bson.conversions.Bson filter = com.mongodb.client.model.Filters.eq("kondisiKesehatan", kondisi);
+        return collection.countDocuments(filter);
+    }
+
+    /**
+     * Menghitung jumlah kucing berdasarkan status makan.
+     */
+    public long countByStatusMakan(String statusMakan) {
+        org.bson.conversions.Bson filter = com.mongodb.client.model.Filters.eq("statusMakan", statusMakan);
         return collection.countDocuments(filter);
     }
 }

@@ -1,8 +1,9 @@
 package ui;
 
 import ui.style.ThemeManager;
-import dao.AdminDAO;
 import model.Admin;
+import services.AuthService;
+import util.I18nService;
 import java.awt.*;
 import javax.swing.*;
 import org.netbeans.lib.awtextra.AbsoluteConstraints;
@@ -15,8 +16,10 @@ public class FormLogin extends JFrame {
     private JButton btnMasuk;
     private JPanel mainPanel, loginContainer;
     private JLabel lblTitle, lblAppName;
+    private AuthService authService;
 
     public FormLogin() {
+        this.authService = new AuthService();
         initCustomComponents();
         applyTheme();
     }
@@ -32,10 +35,10 @@ public class FormLogin extends JFrame {
         loginContainer = new JPanel(new AbsoluteLayout());
         loginContainer.setPreferredSize(new Dimension(1000, 700));
 
-        lblTitle = new JLabel("Welcome to the", SwingConstants.CENTER);
+        lblTitle = new JLabel(I18nService.get("app.login.title"), SwingConstants.CENTER);
         loginContainer.add(lblTitle, new AbsoluteConstraints(0, 100, 1000, -1));
 
-        lblAppName = new JLabel("MeowTap", SwingConstants.CENTER);
+        lblAppName = new JLabel(I18nService.get("app.login.name"), SwingConstants.CENTER);
         loginContainer.add(lblAppName, new AbsoluteConstraints(0, 140, 1000, -1));
 
         txtUsername = new JTextField();
@@ -44,11 +47,11 @@ public class FormLogin extends JFrame {
         txtPassword = new JPasswordField();
         loginContainer.add(txtPassword, new AbsoluteConstraints(350, 300, 310, 45));
 
-        btnMasuk = new JButton("Masuk");
+        btnMasuk = new JButton(I18nService.get("app.login.button"));
         btnMasuk.addActionListener(e -> prosesLogin());
         loginContainer.add(btnMasuk, new AbsoluteConstraints(350, 380, 310, 50));
 
-        JButton btnKeDaftar = new JButton("Belum punya akun? Daftar");
+        JButton btnKeDaftar = new JButton(I18nService.get("app.login.noaccount"));
         btnKeDaftar.setForeground(Color.WHITE);
         btnKeDaftar.setContentAreaFilled(false);
         btnKeDaftar.setBorderPainted(false);
@@ -66,15 +69,15 @@ public class FormLogin extends JFrame {
         String user = txtUsername.getText();
         String pass = new String(txtPassword.getPassword());
 
-        AdminDAO dao = new AdminDAO();
-        Admin admin = dao.checkLogin(user, pass);
+        Admin admin = authService.login(user, pass);
 
         if (admin != null) {
-            // Berhasil Login: Buka Dashboard dengan data Admin asli
             new MainDashboard(admin).setVisible(true);
             this.dispose();
         } else {
-            JOptionPane.showMessageDialog(this, "Username atau Password salah!", "Login Gagal", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(this,
+                I18nService.get("app.login.error"),
+                "Login Gagal", JOptionPane.ERROR_MESSAGE);
         }
     }
 
@@ -90,11 +93,11 @@ public class FormLogin extends JFrame {
 
         txtUsername.setBackground(inputBg);
         txtUsername.setBorder(BorderFactory.createEmptyBorder(5, 15, 5, 5));
-        txtUsername.putClientProperty("JTextField.placeholderText", "Username");
-        
+        txtUsername.putClientProperty("JTextField.placeholderText", I18nService.get("app.login.username"));
+
         txtPassword.setBackground(inputBg);
         txtPassword.setBorder(BorderFactory.createEmptyBorder(5, 15, 5, 5));
-        txtPassword.putClientProperty("JTextField.placeholderText", "Password");
+        txtPassword.putClientProperty("JTextField.placeholderText", I18nService.get("app.login.password"));
 
         btnMasuk.setBackground(ThemeManager.NAVY);
         btnMasuk.setForeground(ThemeManager.WHITE);

@@ -1,8 +1,10 @@
 package ui;
 
 import ui.style.ThemeManager;
-import dao.AdminDAO;
 import model.Admin;
+import services.AuthService;
+import util.EncryptionUtils;
+import util.I18nService;
 import util.SecurityUtils;
 import java.awt.*;
 import javax.swing.*;
@@ -16,8 +18,10 @@ public class FormDaftar extends JFrame {
     private JButton btnDaftar, btnBack;
     private JPanel mainPanel, container;
     private JLabel lblTitle, lblAppName;
+    private AuthService authService;
 
     public FormDaftar() {
+        this.authService = new AuthService();
         initCustomComponents();
         applyTheme();
     }
@@ -33,13 +37,12 @@ public class FormDaftar extends JFrame {
         container = new JPanel(new AbsoluteLayout());
         container.setPreferredSize(new Dimension(1000, 700));
 
-        lblTitle = new JLabel("Welcome to the", SwingConstants.CENTER);
+        lblTitle = new JLabel(I18nService.get("app.register.title"), SwingConstants.CENTER);
         container.add(lblTitle, new AbsoluteConstraints(0, 80, 1000, -1));
 
-        lblAppName = new JLabel("MeowTap", SwingConstants.CENTER);
+        lblAppName = new JLabel(I18nService.get("app.register.name"), SwingConstants.CENTER);
         container.add(lblAppName, new AbsoluteConstraints(0, 120, 1000, -1));
 
-        // Input Fields
         txtNama = new JTextField();
         container.add(txtNama, new AbsoluteConstraints(350, 200, 310, 45));
 
@@ -49,11 +52,11 @@ public class FormDaftar extends JFrame {
         txtPassword = new JPasswordField();
         container.add(txtPassword, new AbsoluteConstraints(350, 320, 310, 45));
 
-        btnDaftar = new JButton("Daftar");
+        btnDaftar = new JButton(I18nService.get("app.register.button"));
         btnDaftar.addActionListener(e -> prosesDaftar());
         container.add(btnDaftar, new AbsoluteConstraints(350, 400, 310, 50));
 
-        btnBack = new JButton("Sudah punya akun? Login");
+        btnBack = new JButton(I18nService.get("app.register.haveaccount"));
         btnBack.addActionListener(e -> {
             new FormLogin().setVisible(true);
             this.dispose();
@@ -69,19 +72,25 @@ public class FormDaftar extends JFrame {
         String pass = new String(txtPassword.getPassword());
 
         if (nama.isEmpty() || user.isEmpty() || pass.isEmpty()) {
-            JOptionPane.showMessageDialog(this, "Semua field wajib diisi!");
+            JOptionPane.showMessageDialog(this, I18nService.get("app.register.fillall"));
             return;
         }
 
+        String encryptedNama = EncryptionUtils.encrypt(nama);
+        System.out.println("FormDaftar: Nama terenkripsi = " + encryptedNama);
+
         Admin newAdmin = new Admin(user, SecurityUtils.hashSHA256(pass), nama);
-        AdminDAO dao = new AdminDAO();
-        
-        if (dao.register(newAdmin)) {
-            JOptionPane.showMessageDialog(this, "Pendaftaran Berhasil! Silakan Login.");
+
+        if (authService.register(nama, user, pass)) {
+            if (encryptedNama != null) {
+                String decrypted = EncryptionUtils.decrypt(encryptedNama);
+                System.out.println("FormDaftar: Nama didekripsi = " + decrypted);
+            }
+            JOptionPane.showMessageDialog(this, I18nService.get("app.register.success"));
             new FormLogin().setVisible(true);
             this.dispose();
         } else {
-            JOptionPane.showMessageDialog(this, "Pendaftaran Gagal! Username mungkin sudah ada.");
+            JOptionPane.showMessageDialog(this, I18nService.get("app.register.error"));
         }
     }
 
@@ -95,9 +104,9 @@ public class FormDaftar extends JFrame {
         lblAppName.setFont(ThemeManager.FONT_LOGO);
         lblAppName.setForeground(ThemeManager.WHITE);
 
-        styleInput(txtNama, "Nama Lengkap");
-        styleInput(txtUsername, "Username");
-        styleInput(txtPassword, "Password");
+        styleInput(txtNama, I18nService.get("app.register.fullname"));
+        styleInput(txtUsername, I18nService.get("app.register.username"));
+        styleInput(txtPassword, I18nService.get("app.register.password"));
 
         btnDaftar.setBackground(ThemeManager.NAVY);
         btnDaftar.setForeground(ThemeManager.WHITE);

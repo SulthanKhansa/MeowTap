@@ -1,6 +1,7 @@
 package ui;
 
 import ui.style.ThemeManager;
+import util.I18nService;
 import java.awt.*;
 import javax.swing.*;
 import org.netbeans.lib.awtextra.AbsoluteConstraints;
@@ -19,33 +20,32 @@ public class WelcomeScreen extends JFrame {
 
     private void initCustomComponents() {
         setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
-        setTitle("MeowTap - Welcome");
+        setTitle("MeowTap - " + I18nService.get("app.welcome.title"));
         setExtendedState(JFrame.MAXIMIZED_BOTH);
 
         mainPanel = new JPanel(new GridBagLayout());
         setContentPane(mainPanel);
 
-        // Container untuk menengahkan konten di layar
         contentContainer = new JPanel(new AbsoluteLayout());
         contentContainer.setPreferredSize(new Dimension(1000, 700));
 
-        lblTitle = new JLabel("Welcome to the", SwingConstants.CENTER);
+        lblTitle = new JLabel(I18nService.get("app.welcome.title"), SwingConstants.CENTER);
         contentContainer.add(lblTitle, new AbsoluteConstraints(0, 80, 1000, -1));
 
-        lblAppName = new JLabel("MeowTap", SwingConstants.CENTER);
+        lblAppName = new JLabel(I18nService.get("app.welcome.name"), SwingConstants.CENTER);
         contentContainer.add(lblAppName, new AbsoluteConstraints(0, 120, 1000, -1));
 
         lblKucing = new JLabel();
         contentContainer.add(lblKucing, new AbsoluteConstraints(392, 200, 215, 215));
 
-        btnMasuk = new JButton("Masuk");
+        btnMasuk = new JButton(I18nService.get("app.welcome.login"));
         btnMasuk.addActionListener(e -> {
             new FormLogin().setVisible(true);
             this.dispose();
         });
         contentContainer.add(btnMasuk, new AbsoluteConstraints(350, 450, 300, 50));
 
-        btnDaftar = new JButton("Daftar");
+        btnDaftar = new JButton(I18nService.get("app.welcome.register"));
         btnDaftar.addActionListener(e -> {
             new FormDaftar().setVisible(true);
             this.dispose();
@@ -55,7 +55,6 @@ public class WelcomeScreen extends JFrame {
         mainPanel.add(contentContainer);
     }
 
-    // Metod untuk pengaturan tema dan dekorasi UI
     private void applyTheme() {
         mainPanel.setBackground(ThemeManager.LAVENDER);
         contentContainer.setOpaque(false);
@@ -65,7 +64,6 @@ public class WelcomeScreen extends JFrame {
         lblAppName.setFont(ThemeManager.FONT_LOGO);
         lblAppName.setForeground(ThemeManager.WHITE);
 
-        // Load asset gambar kucing
         try {
             ImageIcon icon = new ImageIcon(getClass().getResource("/kucing-login.png"));
             Image img = icon.getImage().getScaledInstance(215, 215, Image.SCALE_SMOOTH);

@@ -3,6 +3,8 @@ package ui.dialog;
 import ui.style.ThemeManager;
 import dao.KucingDAO;
 import model.Kucing;
+import util.EncryptionUtils;
+import util.I18nService;
 import java.awt.*;
 import javax.swing.*;
 import org.netbeans.lib.awtextra.AbsoluteConstraints;
@@ -11,9 +13,9 @@ import org.netbeans.lib.awtextra.AbsoluteLayout;
 public class DialogAnabul extends JDialog {
 
     public enum Mode { TAMBAH, EDIT, HAPUS }
-    
+
     private JTextField txtId, txtNama, txtUmur;
-    private JComboBox<String> cbRas, cbKandang, cbStatus;
+    private JComboBox<String> cbRas, cbKandang, cbStatus, cbStatusMakan, cbKondisi;
     private JButton btnAction;
     private JLabel lblTitle;
     private Mode currentMode;
@@ -26,53 +28,83 @@ public class DialogAnabul extends JDialog {
     }
 
     private void initLayout() {
-        setSize(500, 520);
+        setSize(500, 580);
         setLocationRelativeTo(getOwner());
         setLayout(new AbsoluteLayout());
 
-        lblTitle = new JLabel(currentMode.name() + " DATA ANABUL", SwingConstants.CENTER);
+        lblTitle = new JLabel(I18nService.get("app.dialog." + (currentMode == Mode.TAMBAH ? "add" : currentMode == Mode.EDIT ? "edit" : "delete")), SwingConstants.CENTER);
         add(lblTitle, new AbsoluteConstraints(0, 20, 500, -1));
 
-        addLabelInput("ID RFID", 80, txtId = new JTextField());
-        addLabelInput("Nama", 130, txtNama = new JTextField());
-        addLabelCombo("Ras", 180, cbRas = new JComboBox<>(new String[]{"Persia", "Anggora", "Kampung", "Siam"}));
-        addLabelInput("Umur (bln)", 230, txtUmur = new JTextField());
-        addLabelCombo("Kandang", 280, cbKandang = new JComboBox<>(new String[]{"A1", "A2", "B1", "B2", "C1"}));
-        addLabelCombo("Status", 330, cbStatus = new JComboBox<>(new String[]{"Sehat", "Sakit", "Sudah Makan", "Belum Makan"}));
+        addLabelInput(I18nService.get("app.dialog.idrfid"), 70, txtId = new JTextField());
+        addLabelInput(I18nService.get("app.dialog.name"), 120, txtNama = new JTextField());
+        addLabelCombo(I18nService.get("app.dialog.breed"), 170, cbRas = new JComboBox<>(new String[]{
+            I18nService.get("app.dialog.breed.persia"),
+            I18nService.get("app.dialog.breed.anggora"),
+            I18nService.get("app.dialog.breed.kampung"),
+            I18nService.get("app.dialog.breed.siam")
+        }));
+        addLabelInput(I18nService.get("app.dialog.age"), 220, txtUmur = new JTextField());
+        addLabelCombo(I18nService.get("app.dialog.cage"), 270, cbKandang = new JComboBox<>(new String[]{
+            I18nService.get("app.dialog.cage.a1"),
+            I18nService.get("app.dialog.cage.a2"),
+            I18nService.get("app.dialog.cage.b1"),
+            I18nService.get("app.dialog.cage.b2"),
+            I18nService.get("app.dialog.cage.c1")
+        }));
+        addLabelCombo(I18nService.get("app.dialog.feedstatus"), 320, cbStatusMakan = new JComboBox<>(new String[]{
+            I18nService.get("app.dialog.feedstatus.fed"),
+            I18nService.get("app.dialog.feedstatus.unfed")
+        }));
+        addLabelCombo(I18nService.get("app.dialog.health"), 370, cbKondisi = new JComboBox<>(new String[]{
+            I18nService.get("app.dialog.health.sehat"),
+            I18nService.get("app.dialog.health.sakit")
+        }));
+        addLabelCombo("Status", 420, cbStatus = new JComboBox<>(new String[]{"Sehat", "Sakit", "Sudah Makan", "Belum Makan"}));
 
-        btnAction = new JButton(currentMode == Mode.TAMBAH ? "TAMBAH" : (currentMode == Mode.EDIT ? "EDIT" : "HAPUS"));
+        btnAction = new JButton(I18nService.get("app.dialog.btn" + (currentMode == Mode.TAMBAH ? "add" : currentMode == Mode.EDIT ? "edit" : "delete")));
         btnAction.addActionListener(e -> executeAction());
-        add(btnAction, new AbsoluteConstraints(330, 410, 120, 45));
+        add(btnAction, new AbsoluteConstraints(330, 480, 120, 45));
     }
 
-    // Mengisi data lama ke form (untuk mode EDIT/HAPUS)
     public void prepareData(Kucing k) {
         txtId.setText(k.getIdRfid());
-        txtId.setEditable(false); // ID jangan diganti
+        txtId.setEditable(false);
         txtNama.setText(k.getNama());
         txtUmur.setText(String.valueOf(k.getUmur()));
         cbRas.setSelectedItem(k.getRas());
         cbKandang.setSelectedItem(k.getKandang());
+        cbStatusMakan.setSelectedItem(k.getStatusMakan() != null ? k.getStatusMakan() : I18nService.get("app.dialog.feedstatus.fed"));
+        cbKondisi.setSelectedItem(k.getKondisiKesehatan() != null ? k.getKondisiKesehatan() : I18nService.get("app.dialog.health.sehat"));
         cbStatus.setSelectedItem(k.getStatusKesehatan());
-        
+
         if (currentMode == Mode.HAPUS) {
             txtNama.setEditable(false);
             txtUmur.setEditable(false);
             cbRas.setEnabled(false);
             cbKandang.setEnabled(false);
+            cbStatusMakan.setEnabled(false);
+            cbKondisi.setEnabled(false);
             cbStatus.setEnabled(false);
         }
     }
 
     private void executeAction() {
         KucingDAO dao = new KucingDAO();
+        String idRfid = txtId.getText();
+        String encryptedId = EncryptionUtils.encrypt(idRfid);
+        if (encryptedId != null) {
+            System.out.println("DialogAnabul: ID RFID terenkripsi = " + encryptedId);
+        }
+
         Kucing k = new Kucing(
-            txtId.getText(),
+            idRfid,
             txtNama.getText(),
             cbRas.getSelectedItem().toString(),
             Integer.parseInt(txtUmur.getText()),
             cbKandang.getSelectedItem().toString(),
-            cbStatus.getSelectedItem().toString()
+            cbStatus.getSelectedItem().toString(),
+            cbStatusMakan.getSelectedItem().toString(),
+            cbKondisi.getSelectedItem().toString()
         );
 
         if (currentMode == Mode.TAMBAH) {
@@ -82,7 +114,7 @@ public class DialogAnabul extends JDialog {
         } else {
             dao.delete(k.getIdRfid());
         }
-        
+
         this.dispose();
     }
 
