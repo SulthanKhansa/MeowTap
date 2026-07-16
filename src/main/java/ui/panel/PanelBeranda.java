@@ -157,7 +157,7 @@ public final class PanelBeranda extends JPanel implements I18nService.I18nChange
         });
         add(pnlAdmin, new AbsoluteConstraints(offsetX + 380, 20, 240, 60));
 
-        int langX = offsetX + 600;
+        int langX = offsetX + 650;
         btnID = createLangButton("ID", langX, () -> I18nService.setLocale(new Locale("id", "ID")));
         btnFR = createLangButton("FR", langX + 55, () -> I18nService.setLocale(new Locale("fr", "FR")));
         btnES = createLangButton("ES", langX + 110, () -> I18nService.setLocale(new Locale("es", "ES")));
