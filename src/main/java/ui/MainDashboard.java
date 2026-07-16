@@ -123,7 +123,7 @@ public class MainDashboard extends JFrame implements I18nService.I18nChangeListe
                     if (c == panelKonten) {
                         c.setBounds(0, 0, getWidth(), getHeight());
                     } else if (c == lblJam) {
-                        c.setBounds(getWidth() - 120, 15, 100, 30);
+                        c.setBounds(390, 30, 110, 30);
                     }
                 }
             }
