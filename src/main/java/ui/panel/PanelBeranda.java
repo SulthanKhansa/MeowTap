@@ -161,9 +161,9 @@ public final class PanelBeranda extends JPanel implements I18nService.I18nChange
         add(pnlAdmin, new AbsoluteConstraints(offsetX + 380, 20, 240, 60));
 
         int langX = offsetX + 640;
-        btnID = createLangButton("\uD83C\uDDEE\uD83C\uDDE9 ID", langX, () -> I18nService.setLocale(new Locale("id", "ID")));
-        btnFR = createLangButton("\uD83C\uDDEB\uD83C\uDDF7 FR", langX + 70, () -> I18nService.setLocale(new Locale("fr", "FR")));
-        btnES = createLangButton("\uD83C\uDDEA\uD83C\uDDF8 ES", langX + 140, () -> I18nService.setLocale(new Locale("es", "ES")));
+        btnID = createLangButton("ID", langX, () -> I18nService.setLocale(new Locale("id", "ID")));
+        btnFR = createLangButton("FR", langX + 70, () -> I18nService.setLocale(new Locale("fr", "FR")));
+        btnES = createLangButton("ES", langX + 140, () -> I18nService.setLocale(new Locale("es", "ES")));
 
         pnlStats = new JPanel(new AbsoluteLayout());
         lblSummary = new JLabel(I18nService.get("home.summary"));
@@ -206,7 +206,7 @@ public final class PanelBeranda extends JPanel implements I18nService.I18nChange
         JButton btn = new JButton(text);
         btn.setBackground(ThemeManager.NAVY);
         btn.setForeground(Color.WHITE);
-        btn.setFont(new Font("Segoe UI Emoji", Font.BOLD, 13));
+        btn.setFont(new Font("Segoe UI", Font.BOLD, 14));
         btn.setBorder(BorderFactory.createLineBorder(new Color(60, 60, 90), 1));
         btn.setFocusPainted(false);
         btn.setCursor(new Cursor(Cursor.HAND_CURSOR));
