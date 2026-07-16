@@ -127,10 +127,10 @@ public class PanelScanRfid extends JPanel implements I18nService.I18nChangeListe
         if (val == null) return "-";
         String lang = I18nService.getCurrentLocale().getLanguage();
         String v = val.trim().toLowerCase();
-        if (lang.equals("en")) {
+        if (lang.equals("fr")) {
             return switch (v) {
-                case "sudah makan" -> "Fed";
-                case "belum makan" -> "Not Fed";
+                case "sudah makan" -> "Nourri";
+                case "belum makan" -> "Non nourri";
                 default -> val;
             };
         } else if (lang.equals("es")) {

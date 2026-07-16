@@ -75,13 +75,13 @@ public class DialogAnabul extends JDialog implements I18nService.I18nChangeListe
         if (val == null) return "-";
         String lang = I18nService.getCurrentLocale().getLanguage();
         String v = val.trim().toLowerCase();
-        if (lang.equals("en")) {
+        if (lang.equals("fr")) {
             return switch (v) {
-                case "sudah makan" -> "Fed";
-                case "belum makan" -> "Not Fed";
-                case "sehat" -> "Healthy";
-                case "sakit" -> "Sick";
-                case "meninggal" -> "Deceased";
+                case "sudah makan" -> "Nourri";
+                case "belum makan" -> "Non nourri";
+                case "sehat" -> "En bonne santé";
+                case "sakit" -> "Malade";
+                case "meninggal" -> "Décédé";
                 default -> val;
             };
         } else if (lang.equals("es")) {
@@ -101,11 +101,11 @@ public class DialogAnabul extends JDialog implements I18nService.I18nChangeListe
         if (val == null) return "-";
         String v = val.trim().toLowerCase();
         return switch (v) {
-            case "fed", "alimentado" -> "Sudah makan";
-            case "not fed", "no alimentado" -> "Belum makan";
-            case "healthy", "sano" -> "Sehat";
-            case "sick", "enfermo" -> "Sakit";
-            case "deceased", "fallecido" -> "Meninggal";
+            case "nourri", "alimentado" -> "Sudah makan";
+            case "non nourri", "no alimentado" -> "Belum makan";
+            case "en bonne santé", "sano" -> "Sehat";
+            case "malade", "enfermo" -> "Sakit";
+            case "décédé", "fallecido" -> "Meninggal";
             default -> val;
         };
     }

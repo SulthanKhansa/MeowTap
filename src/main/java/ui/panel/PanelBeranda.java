@@ -23,7 +23,7 @@ public final class PanelBeranda extends JPanel implements I18nService.I18nChange
     private JLabel lblAdmin, lblSummary, lblScanInfo, lblPreviewTitle, lblAiClinicTitle;
     private JTable tablePreview;
     private javax.swing.table.DefaultTableModel tableModel;
-    private JButton btnID, btnEN, btnES;
+    private JButton btnID, btnFR, btnES;
 
     public PanelBeranda(MainDashboard parent, Admin admin) {
         this.parent = parent;
@@ -76,13 +76,13 @@ public final class PanelBeranda extends JPanel implements I18nService.I18nChange
         if (val == null) return "-";
         String lang = I18nService.getCurrentLocale().getLanguage();
         String v = val.trim().toLowerCase();
-        if (lang.equals("en")) {
+        if (lang.equals("fr")) {
             return switch (v) {
-                case "sudah makan" -> "Fed";
-                case "belum makan" -> "Not Fed";
-                case "sehat" -> "Healthy";
-                case "sakit" -> "Sick";
-                case "meninggal" -> "Deceased";
+                case "sudah makan" -> "Nourri";
+                case "belum makan" -> "Non nourri";
+                case "sehat" -> "En bonne santé";
+                case "sakit" -> "Malade";
+                case "meninggal" -> "Décédé";
                 default -> val;
             };
         } else if (lang.equals("es")) {
@@ -108,7 +108,7 @@ public final class PanelBeranda extends JPanel implements I18nService.I18nChange
         lblAiClinicTitle.setText(I18nService.get("home.ai.title"));
         
         btnID.setBackground(lang.equals("id") ? ThemeManager.LAVENDER : ThemeManager.NAVY);
-        btnEN.setBackground(lang.equals("en") ? ThemeManager.LAVENDER : ThemeManager.NAVY);
+        btnFR.setBackground(lang.equals("fr") ? ThemeManager.LAVENDER : ThemeManager.NAVY);
         btnES.setBackground(lang.equals("es") ? ThemeManager.LAVENDER : ThemeManager.NAVY);
         
         updateStatBoxTitles(
@@ -159,7 +159,7 @@ public final class PanelBeranda extends JPanel implements I18nService.I18nChange
 
         int langX = offsetX + 600;
         btnID = createLangButton("ID", langX, () -> I18nService.setLocale(new Locale("id", "ID")));
-        btnEN = createLangButton("EN", langX + 55, () -> I18nService.setLocale(Locale.ENGLISH));
+        btnFR = createLangButton("FR", langX + 55, () -> I18nService.setLocale(new Locale("fr", "FR")));
         btnES = createLangButton("ES", langX + 110, () -> I18nService.setLocale(new Locale("es", "ES")));
 
         pnlStats = new JPanel(new AbsoluteLayout());
