@@ -23,7 +23,7 @@ public final class PanelBeranda extends JPanel implements I18nService.I18nChange
     private JLabel lblAdmin, lblSummary, lblScanInfo, lblPreviewTitle, lblAiClinicTitle;
     private JTable tablePreview;
     private javax.swing.table.DefaultTableModel tableModel;
-    private JButton btnLang;
+    private JButton btnID, btnEN, btnES;
 
     public PanelBeranda(MainDashboard parent, Admin admin) {
         this.parent = parent;
@@ -107,16 +107,9 @@ public final class PanelBeranda extends JPanel implements I18nService.I18nChange
         lblPreviewTitle.setText("  " + I18nService.get("home.preview.title"));
         lblAiClinicTitle.setText(I18nService.get("home.ai.title"));
         
-        if (lang.equals("en")) {
-            btnLang.setIcon(FontIcon.of(Feather.TOGGLE_RIGHT, 24, Color.WHITE));
-            btnLang.setText("EN ");
-        } else if (lang.equals("es")) {
-            btnLang.setIcon(FontIcon.of(Feather.TOGGLE_RIGHT, 24, Color.WHITE));
-            btnLang.setText("ES ");
-        } else {
-            btnLang.setIcon(FontIcon.of(Feather.TOGGLE_LEFT, 24, new Color(200, 200, 200)));
-            btnLang.setText("ID ");
-        }
+        btnID.setBackground(lang.equals("id") ? ThemeManager.LAVENDER : ThemeManager.NAVY);
+        btnEN.setBackground(lang.equals("en") ? ThemeManager.LAVENDER : ThemeManager.NAVY);
+        btnES.setBackground(lang.equals("es") ? ThemeManager.LAVENDER : ThemeManager.NAVY);
         
         updateStatBoxTitles(
             I18nService.get("home.stat.fed"),
@@ -164,25 +157,10 @@ public final class PanelBeranda extends JPanel implements I18nService.I18nChange
         });
         add(pnlAdmin, new AbsoluteConstraints(offsetX + 380, 20, 240, 60));
 
-        btnLang = new JButton("ID ");
-        btnLang.setBackground(ThemeManager.NAVY);
-        btnLang.setForeground(Color.WHITE);
-        btnLang.setFont(new Font("Segoe UI", Font.BOLD, 14));
-        btnLang.setBorderPainted(false);
-        btnLang.setFocusPainted(false);
-        btnLang.setHorizontalTextPosition(SwingConstants.LEFT);
-        btnLang.setCursor(new Cursor(Cursor.HAND_CURSOR));
-        btnLang.addActionListener(e -> {
-            String lang = I18nService.getCurrentLocale().getLanguage();
-            if (lang.equals("id")) {
-                I18nService.setLocale(Locale.ENGLISH);
-            } else if (lang.equals("en")) {
-                I18nService.setLocale(new Locale("es", "ES"));
-            } else {
-                I18nService.setLocale(new Locale("id", "ID"));
-            }
-        });
-        add(btnLang, new AbsoluteConstraints(offsetX + 630, 20, 90, 60));
+        int langX = offsetX + 600;
+        btnID = createLangButton("ID", langX, () -> I18nService.setLocale(new Locale("id", "ID")));
+        btnEN = createLangButton("EN", langX + 55, () -> I18nService.setLocale(Locale.ENGLISH));
+        btnES = createLangButton("ES", langX + 110, () -> I18nService.setLocale(new Locale("es", "ES")));
 
         pnlStats = new JPanel(new AbsoluteLayout());
         lblSummary = new JLabel(I18nService.get("home.summary"));
@@ -219,6 +197,19 @@ public final class PanelBeranda extends JPanel implements I18nService.I18nChange
 
         add(createTablePreviewBox(), new AbsoluteConstraints(offsetX, 420, 350, 250));
         add(createBottomBox(I18nService.get("home.ai.title")), new AbsoluteConstraints(offsetX + 370, 420, 350, 250));
+    }
+
+    private JButton createLangButton(String text, int x, Runnable action) {
+        JButton btn = new JButton(text);
+        btn.setBackground(ThemeManager.NAVY);
+        btn.setForeground(Color.WHITE);
+        btn.setFont(new Font("Segoe UI", Font.BOLD, 14));
+        btn.setBorderPainted(false);
+        btn.setFocusPainted(false);
+        btn.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        btn.addActionListener(e -> action.run());
+        add(btn, new AbsoluteConstraints(x, 30, 50, 40));
+        return btn;
     }
 
     private JPanel createStatBox(String title, JLabel lblValue, Color bg) {
