@@ -107,9 +107,12 @@ public final class PanelBeranda extends JPanel implements I18nService.I18nChange
         lblPreviewTitle.setText("  " + I18nService.get("home.preview.title"));
         lblAiClinicTitle.setText(I18nService.get("home.ai.title"));
         
-        btnID.setBackground(lang.equals("id") ? ThemeManager.LAVENDER : ThemeManager.NAVY);
-        btnFR.setBackground(lang.equals("fr") ? ThemeManager.LAVENDER : ThemeManager.NAVY);
-        btnES.setBackground(lang.equals("es") ? ThemeManager.LAVENDER : ThemeManager.NAVY);
+        btnID.setBackground(lang.equals("id") ? ThemeManager.STAT_GREEN : ThemeManager.NAVY);
+        btnID.setForeground(lang.equals("id") ? Color.WHITE : new Color(180, 180, 180));
+        btnFR.setBackground(lang.equals("fr") ? ThemeManager.STAT_GREEN : ThemeManager.NAVY);
+        btnFR.setForeground(lang.equals("fr") ? Color.WHITE : new Color(180, 180, 180));
+        btnES.setBackground(lang.equals("es") ? ThemeManager.STAT_GREEN : ThemeManager.NAVY);
+        btnES.setForeground(lang.equals("es") ? Color.WHITE : new Color(180, 180, 180));
         
         updateStatBoxTitles(
             I18nService.get("home.stat.fed"),
@@ -157,10 +160,10 @@ public final class PanelBeranda extends JPanel implements I18nService.I18nChange
         });
         add(pnlAdmin, new AbsoluteConstraints(offsetX + 380, 20, 240, 60));
 
-        int langX = offsetX + 650;
-        btnID = createLangButton("ID", langX, () -> I18nService.setLocale(new Locale("id", "ID")));
-        btnFR = createLangButton("FR", langX + 55, () -> I18nService.setLocale(new Locale("fr", "FR")));
-        btnES = createLangButton("ES", langX + 110, () -> I18nService.setLocale(new Locale("es", "ES")));
+        int langX = offsetX + 640;
+        btnID = createLangButton("\uD83C\uDDEE\uD83C\uDDE9 ID", langX, () -> I18nService.setLocale(new Locale("id", "ID")));
+        btnFR = createLangButton("\uD83C\uDDEB\uD83C\uDDF7 FR", langX + 70, () -> I18nService.setLocale(new Locale("fr", "FR")));
+        btnES = createLangButton("\uD83C\uDDEA\uD83C\uDDF8 ES", langX + 140, () -> I18nService.setLocale(new Locale("es", "ES")));
 
         pnlStats = new JPanel(new AbsoluteLayout());
         lblSummary = new JLabel(I18nService.get("home.summary"));
@@ -203,12 +206,13 @@ public final class PanelBeranda extends JPanel implements I18nService.I18nChange
         JButton btn = new JButton(text);
         btn.setBackground(ThemeManager.NAVY);
         btn.setForeground(Color.WHITE);
-        btn.setFont(new Font("Segoe UI", Font.BOLD, 14));
-        btn.setBorderPainted(false);
+        btn.setFont(new Font("Segoe UI Emoji", Font.BOLD, 13));
+        btn.setBorder(BorderFactory.createLineBorder(new Color(60, 60, 90), 1));
         btn.setFocusPainted(false);
         btn.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        btn.setPreferredSize(new Dimension(65, 40));
         btn.addActionListener(e -> action.run());
-        add(btn, new AbsoluteConstraints(x, 30, 50, 40));
+        add(btn, new AbsoluteConstraints(x, 30, 65, 40));
         return btn;
     }
 
